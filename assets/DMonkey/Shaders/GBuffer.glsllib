@@ -1,0 +1,66 @@
+#define DM_NORMAL_BUFFER m_NormalBuffer
+#define DM_DIFFUSE_BUFFER m_DiffuseBuffer
+#define DM_DEPTH_BUFFER m_DepthBuffer
+
+uniform sampler2D DM_NORMAL_BUFFER;
+uniform sampler2D DM_DIFFUSE_BUFFER;
+uniform sampler2D DM_DEPTH_BUFFER;
+
+
+/**
+ * These uniform should be passed in from JME;
+ */
+uniform mat4 g_ViewProjectionMatrixInverse;
+uniform mat4 g_ProjectionMatrixInverse;
+uniform mat4 g_ViewMatrix;
+uniform vec3 m_FrustumCorner;
+uniform vec2 m_FrustumNearFar;
+
+struct DM_GBuffer{
+	float depth;
+	float linear_depth;
+	float specular;
+	vec3 normal;
+	vec3 position;
+	vec3 albedo;
+} GBuffer;
+
+float dm_depth(vec2 tc){
+  return texture2D(DM_DEPTH_BUFFER, tc).r;
+}
+
+vec3 dm_position(vec2 tc, float projectiveDepth){
+  vec4 position = vec4(tc*2.0-1.0, projectiveDepth*2.0-1.0, 1.0);
+  position = g_ProjectionMatrixInverse*position;
+  return position.xyz/position.w;
+}
+
+vec3 dm_normal(vec2 tc){
+  return normalize((texture2D(DM_NORMAL_BUFFER, tc) * 2.0 - 1.0).rgb);
+}
+
+/**
+ * Reconstructiong linear depth
+ */
+float dm_non_linear_2_linear_depth(float w){
+	float wnear = m_FrustumNearFar.x;
+	float wfar = m_FrustumNearFar.y;
+	return (w - wnear) * (wfar / (wfar - wnear));
+}
+
+void dm_decode(vec2 tc){
+	GBuffer.depth = dm_depth(tc);
+	GBuffer.linear_depth = dm_non_linear_2_linear_depth(GBuffer.depth);
+	
+	// Decode normal and specular
+	vec4 normalAndSpecluar = texture2D(DM_NORMAL_BUFFER, tc);	
+	GBuffer.normal = normalAndSpecluar.rgb * 2.0 - 1.0;
+	GBuffer.specular = normalAndSpecluar.a;
+
+  // Decode position
+  GBuffer.position = dm_position(tc, GBuffer.depth);
+	
+  // Recover albedo
+	GBuffer.albedo = texture2D(DM_DIFFUSE_BUFFER, tc).rgb;
+}
+

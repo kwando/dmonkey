@@ -1,0 +1,26 @@
+MaterialDef Resolve {
+
+    MaterialParameters {
+        Texture2D NormalBuffer
+        Texture2D DiffuseBuffer
+        Texture2D DepthBuffer
+        Texture2D LightBuffer
+        Matrix4 ProjectionMatrixInverse
+        Matrix4 ProjectionMatrix
+    }
+
+    Technique {
+        VertexShader GLSL100:   DMonkey/Shaders/Resolve.vert
+        FragmentShader GLSL100: DMonkey/Shaders/Resolve.frag
+
+        WorldParameters {
+          ViewMatrix
+          ProjectionMatrixInverse
+        }
+        RenderState{
+          DepthTest false
+          DepthWrite false
+        }
+    }
+
+}

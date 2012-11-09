@@ -1,0 +1,61 @@
+MaterialDef PointLight {
+
+    MaterialParameters {
+        Vector4 LightColor
+        Texture2D DepthBuffer
+        Texture2D NormalBuffer
+        Texture2D DiffuseBuffer
+        Vector3 LightPosition
+        Float LightIntensity
+        Float LightRadius
+				Boolean fullscreen
+				Vector3 FrustumCorner
+				Vector2 FrustumNearFar
+        Vector3Array LightPositions
+        Boolean specular : true
+    }
+
+    Technique {
+        VertexShader GLSL100:   DMonkey/Shaders/PointLight.vert
+        FragmentShader GLSL100: DMonkey/Shaders/PointLight.frag
+
+        WorldParameters {
+            ViewMatrix
+						ProjectionMatrixInverse
+						ViewProjectionMatrixInverse
+            WorldViewProjectionMatrix
+            WorldViewProjectionMatrixInverse
+            ViewProjectionMatrixInverse
+            Resolution
+            CameraDirection
+        }
+        Defines {
+            NORMAL_BUFFER : NormalBuffer
+            DIFFUSE_BUFFER : DiffuseBuffer
+            DEPTH_BUFFER : DepthBuffer
+						FULLSCREEN : fullscreen
+            SPECULAR : specular
+        }
+    }
+    Technique DeferredLight{
+        VertexShader GLSL100:   Shaders/PointLight.vert
+        FragmentShader GLSL100: Shaders/PointLight.frag
+
+        WorldParameters {
+            ViewMatrix
+						ProjectionMatrixInverse
+						ViewProjectionMatrixInverse
+            WorldViewProjectionMatrix
+            WorldViewProjectionMatrixInverse
+            ViewProjectionMatrixInverse
+            Resolution
+            CameraDirection
+        }
+        Defines {
+            NORMAL_BUFFER : NormalBuffer
+            DIFFUSE_BUFFER : DiffuseBuffer
+            DEPTH_BUFFER : DepthBuffer
+						FULLSCREEN : fullscreen
+        }
+    }
+}

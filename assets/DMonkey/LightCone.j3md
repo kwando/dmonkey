@@ -1,0 +1,37 @@
+MaterialDef SpotLight {
+
+    MaterialParameters {
+        Vector4 LightColor
+        Texture2D DepthBuffer
+        Texture2D NormalBuffer
+        Texture2D DiffuseBuffer
+        Vector3 LightPosition
+        Vector3 LightDirection
+        Float CutoffAngle
+        Float LightRange
+    }
+
+    Technique {
+        VertexShader GLSL100:   DMonkey/Shaders/LightCone.vert
+        FragmentShader GLSL100: DMonkey/Shaders/LightCone.frag
+
+        WorldParameters {
+            ViewMatrix
+            NormalMatrix
+            WorldViewMatrix
+						ProjectionMatrixInverse
+						ViewProjectionMatrixInverse
+            WorldViewProjectionMatrix
+            WorldViewProjectionMatrixInverse
+            ViewProjectionMatrixInverse
+            Resolution
+        }
+        Defines {
+            NORMAL_BUFFER : NormalBuffer
+            DIFFUSE_BUFFER : DiffuseBuffer
+            DEPTH_BUFFER : DepthBuffer
+						FULLSCREEN : fullscreen
+            SPECULAR : specular
+        }
+    }
+}

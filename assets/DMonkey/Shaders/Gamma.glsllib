@@ -1,0 +1,6 @@
+vec3 gamma(vec3 color, float gamma){
+  color.r = pow(color.r, gamma);
+  color.g = pow(color.g, gamma);
+  color.b = pow(color.b, gamma);
+  return color;
+}

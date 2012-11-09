@@ -1,0 +1,7 @@
+*.jnilib
+*.jnlp
+*.dylib
+
+dist/*
+build/*
+resources/*
