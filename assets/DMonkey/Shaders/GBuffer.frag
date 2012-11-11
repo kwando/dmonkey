@@ -1,21 +1,16 @@
-#ifdef COLOR
-uniform vec4 m_DiffuseColor;
-#endif
 uniform mat4 g_ViewMatrix;
 uniform mat3 g_NormalMatrix;
 uniform sampler2D m_DiffuseTex;
 uniform sampler2D m_NormalTex;
 uniform sampler2D m_SpecularTex;
 uniform float m_SpecularAmount;
-uniform vec4 m_DiffuseColor;
 uniform vec2 m_UV1Scale;
 uniform vec2 g_FrustumNearFar;
 uniform float g_Time;
+
 varying vec3 Normal;
 varying vec3 Position;
 varying vec2 TexCoord;
-
-
 varying vec3 Binormal;
 varying vec3 Tangent;
 
@@ -35,9 +30,5 @@ void main() {
     specular = m_SpecularAmount;
     gl_FragData[0] = vec4(normalize(normal)*0.5+0.5, specular);
 
-    #ifdef COLOR
-    gl_FragData[1] = m_DiffuseColor;
-    #else
-    gl_FragData[1] = texture2D(m_DiffuseTex, uv1) * m_DiffuseColor * m_DiffuseColor.a;
-    #endif
+    gl_FragData[1] = texture2D(m_DiffuseTex, uv1);
 }

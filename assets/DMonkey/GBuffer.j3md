@@ -1,7 +1,6 @@
 MaterialDef GBuffer {
 
     MaterialParameters {
-        Color DiffuseColor
         Texture2D DiffuseTex
         Texture2D NormalTex
         Texture2D SpecularTex

@@ -9,15 +9,10 @@ attribute vec3 inPosition;
 attribute vec3 inNormal;
 attribute vec2 inTexCoord;
 attribute vec4 inTangent;
-attribute vec4 inColor;
-
-
 
 varying vec3 Normal;
 varying vec3 Position;
 varying vec2 TexCoord;
-varying vec4 DiffuseColor;
-
 varying vec3 Binormal;
 varying vec3 Tangent;
 
@@ -28,7 +23,6 @@ void main() {
     Normal = g_NormalMatrix * inNormal;
     Position = (g_ViewMatrix * pos).xyz;
     TexCoord = inTexCoord;
-    DiffuseColor = inColor;
     #ifdef NORMAL_MAP
     Tangent = inTangent.xyz;
     Binormal = cross(Tangent, Normal);
