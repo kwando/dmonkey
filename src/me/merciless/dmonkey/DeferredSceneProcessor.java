@@ -21,10 +21,8 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
-import com.jme3.shader.VarType;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture2D;
 
 /**
@@ -154,22 +152,18 @@ public class DeferredSceneProcessor implements SceneProcessor {
 
     ColorRGBA color = ColorRGBA.randomColor();
     color.a = 10 * 8.6f;
-    material.setVector3("LightPosition", light.getPosition());
-    material.setColor("LightColor", color);
-    material.setFloat("LightRadius", 1f/light.getRadius());
-    material.setFloat("LightIntensity", 10f);
+    
+    
     material.getAdditionalRenderState().setFaceCullMode(RenderState.FaceCullMode.Back);
     material.getAdditionalRenderState().setDepthTest(true);
     material.getAdditionalRenderState().setDepthWrite(false);
     material.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Additive);
-    material.setParam("LightPositions", VarType.Vector3Array, new Vector3f[]{light.getPosition()});
 
     model.addControl(new PointLightControl(material, light));
     model.addControl(new LightQualityControl(material, lightVp.getCamera()));
 
 
     model.setMaterial(material);
-    model.setLocalScale(light.getRadius()/4); // TODO, calculate the real range needed..
 
     lightNode.attachChild(model);
   }
