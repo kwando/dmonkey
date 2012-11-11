@@ -1,13 +1,13 @@
 MaterialDef AmbientLight {
 
     MaterialParameters {
-        Vector4 Color
+        Vector4 AmbientColor
         Texture2D DepthBuffer
         Texture2D NormalBuffer
         Texture2D DiffuseBuffer
         Vector3 LightPosition
         Float LightIntensity
-        
+        Boolean colorizeAmbient : false
     }
 
     Technique {
@@ -16,6 +16,9 @@ MaterialDef AmbientLight {
 
         WorldParameters {
           Resolution
+        }
+        Defines {
+        	COLORIZE_AMBIENT : colorizeAmbient
         }
     }
 
