@@ -129,11 +129,11 @@ public class DeferredSceneProcessor implements SceneProcessor {
 
   private void setupLights() {
     ambient = new AmbientQuad(assets, gbuffer);
-
-    for (int i = 0; i < 10; i++) {
-      for (int j = 0; j < 10; j++) {
+    int side = 40;
+    for (int i = 0; i < side; i++) {
+      for (int j = 0; j < side; j++) {
         PointLight pl = new PointLight();
-        pl.setPosition(Vector3f.UNIT_Y.add(i * 1.5f, 0, j * 1.5f));
+        pl.setPosition(Vector3f.UNIT_Y.add((i - side / 2) * 1.5f, 0, (j - side / 2) * 1.5f));
         pl.setColor(ColorRGBA.randomColor().add(new ColorRGBA(0, 0, 0, 10 * 8.6f)));
         pl.setRadius(20);
         addPointLight(pl);
@@ -150,10 +150,6 @@ public class DeferredSceneProcessor implements SceneProcessor {
     material.setTexture("DepthBuffer", gbuffer.Zbuffer);
     material.setTexture("NormalBuffer", gbuffer.normals);
 
-    ColorRGBA color = ColorRGBA.randomColor();
-    color.a = 10 * 8.6f;
-    
-    
     material.getAdditionalRenderState().setFaceCullMode(RenderState.FaceCullMode.Back);
     material.getAdditionalRenderState().setDepthTest(true);
     material.getAdditionalRenderState().setDepthWrite(false);

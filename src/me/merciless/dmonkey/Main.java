@@ -49,7 +49,7 @@ public class Main extends SimpleApplication {
     geom.setMaterial(mat);
     TangentBinormalGenerator.generate(geom);
     BatchNode cubes = new BatchNode();
-    int side = 20;
+    int side = 40;
     float moveScale = 1.5f;
 
     for (int i = 0; i < side; i++) {
