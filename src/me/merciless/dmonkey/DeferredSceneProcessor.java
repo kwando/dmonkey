@@ -18,9 +18,11 @@ import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
+import com.jme3.scene.shape.Sphere;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
@@ -44,6 +46,12 @@ public class DeferredSceneProcessor implements SceneProcessor {
   private FrameBuffer lightBuffer;
   private Texture2D lightTexture;
   private AmbientQuad ambient;
+  
+  private static Mesh pointLightMesh;
+  static{
+    pointLightMesh = new Sphere(8, 12, 0.5f);
+    pointLightMesh.setStatic();
+  }
 
   public DeferredSceneProcessor(Application app) {
     this.assets = app.getAssetManager();
@@ -144,7 +152,7 @@ public class DeferredSceneProcessor implements SceneProcessor {
   }
 
   private void addPointLight(PointLight light) {
-    final Spatial model = assets.loadModel("DMonkey/PointLight.j3o");
+    Spatial model = new Geometry("pontLightMesh", pointLightMesh);
     Material material = new Material(assets, "DMonkey/PointLight.j3md");
     material.setTexture("DiffuseBuffer", gbuffer.diffuse);
     material.setTexture("DepthBuffer", gbuffer.Zbuffer);
