@@ -4,6 +4,7 @@
  */
 package me.merciless.dmonkey;
 
+import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -17,15 +18,19 @@ import com.jme3.scene.control.Control;
  * @author kwando
  */
 public class PointLightControl extends AbstractControl {
-  private final Material material;
 
-  public PointLightControl(Material material) {
+  private final Material material;
+  private final PointLight light;
+
+  PointLightControl(Material material, PointLight light) {
     this.material = material;
+    this.light = light;
   }
 
   @Override
   protected void controlUpdate(float tpf) {
-    material.setVector3("LightPosition", this.spatial.getWorldTranslation());
+    this.spatial.setLocalTranslation(light.getPosition());
+    material.setVector3("LightPosition", light.getPosition());
   }
 
   @Override
@@ -33,8 +38,6 @@ public class PointLightControl extends AbstractControl {
   }
 
   public Control cloneForSpatial(Spatial spatial) {
-    Control control = new PointLightControl(((Geometry)spatial).getMaterial());
-    control.setSpatial(spatial);
-    return control;
+    throw new UnsupportedOperationException();
   }
 }

@@ -154,7 +154,7 @@ public class DeferredSceneProcessor implements SceneProcessor {
 
     ColorRGBA color = ColorRGBA.randomColor();
     color.a = 10 * 8.6f;
-    material.setVector3("LightPosition", model.getLocalTranslation());
+    material.setVector3("LightPosition", light.getPosition());
     material.setColor("LightColor", color);
     material.setFloat("LightRadius", 1f/light.getRadius());
     material.setFloat("LightIntensity", 10f);
@@ -162,15 +162,14 @@ public class DeferredSceneProcessor implements SceneProcessor {
     material.getAdditionalRenderState().setDepthTest(true);
     material.getAdditionalRenderState().setDepthWrite(false);
     material.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Additive);
-    material.setParam("LightPositions", VarType.Vector3Array, new Vector3f[]{model.getLocalTranslation()});
+    material.setParam("LightPositions", VarType.Vector3Array, new Vector3f[]{light.getPosition()});
 
-    model.addControl(new LightControl(light.getPosition()));
-    model.addControl(new PointLightControl(material));
+    model.addControl(new PointLightControl(material, light));
     model.addControl(new LightQualityControl(material, lightVp.getCamera()));
 
 
     model.setMaterial(material);
-    model.setLocalScale(light.getRadius()/4);
+    model.setLocalScale(light.getRadius()/4); // TODO, calculate the real range needed..
 
     lightNode.attachChild(model);
   }
