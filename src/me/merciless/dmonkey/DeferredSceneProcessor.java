@@ -6,6 +6,7 @@ package me.merciless.dmonkey;
 
 import com.jme3.app.Application;
 import com.jme3.asset.AssetManager;
+import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
@@ -74,7 +75,7 @@ public class DeferredSceneProcessor implements SceneProcessor {
     resolveMat.setTexture("DepthBuffer", gbuffer.Zbuffer);
     resolveMat.setTexture("DiffuseBuffer", gbuffer.diffuse);
     resolveMat.setTexture("LightBuffer", lightTexture);
-    
+
     resolveQuad.setQueueBucket(RenderQueue.Bucket.Opaque);
   }
 
@@ -133,14 +134,18 @@ public class DeferredSceneProcessor implements SceneProcessor {
 
     for (int i = 0; i < 10; i++) {
       for (int j = 0; j < 10; j++) {
-        addPointLight(Vector3f.UNIT_Y.add(i*1.5f, 0, j*1.5f));
+        PointLight pl = new PointLight();
+        pl.setPosition(Vector3f.UNIT_Y.add(i * 1.5f, 0, j * 1.5f));
+        pl.setColor(ColorRGBA.randomColor().add(new ColorRGBA(0, 0, 0, 10 * 8.6f)));
+        pl.setRadius(20);
+        addPointLight(pl);
       }
     }
 
 
   }
 
-  private void addPointLight(Vector3f origin) {
+  private void addPointLight(PointLight light) {
     final Spatial model = assets.loadModel("DMonkey/PointLight.j3o");
     Material material = new Material(assets, "DMonkey/PointLight.j3md");
     material.setTexture("DiffuseBuffer", gbuffer.diffuse);
@@ -148,10 +153,10 @@ public class DeferredSceneProcessor implements SceneProcessor {
     material.setTexture("NormalBuffer", gbuffer.normals);
 
     ColorRGBA color = ColorRGBA.randomColor();
-    color.a = 10*8.6f;
+    color.a = 10 * 8.6f;
     material.setVector3("LightPosition", model.getLocalTranslation());
     material.setColor("LightColor", color);
-    material.setFloat("LightRadius", 0.05f);
+    material.setFloat("LightRadius", 1f/light.getRadius());
     material.setFloat("LightIntensity", 10f);
     material.getAdditionalRenderState().setFaceCullMode(RenderState.FaceCullMode.Back);
     material.getAdditionalRenderState().setDepthTest(true);
@@ -159,13 +164,13 @@ public class DeferredSceneProcessor implements SceneProcessor {
     material.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Additive);
     material.setParam("LightPositions", VarType.Vector3Array, new Vector3f[]{model.getLocalTranslation()});
 
-    model.addControl(new LightControl(origin));
+    model.addControl(new LightControl(light.getPosition()));
     model.addControl(new PointLightControl(material));
     model.addControl(new LightQualityControl(material, lightVp.getCamera()));
 
 
     model.setMaterial(material);
-    model.setLocalScale(5f);
+    model.setLocalScale(light.getRadius()/4);
 
     lightNode.attachChild(model);
   }
