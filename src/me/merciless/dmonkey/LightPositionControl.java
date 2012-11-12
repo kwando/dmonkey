@@ -16,10 +16,10 @@ import com.jme3.scene.control.Control;
  *
  * @author kwando
  */
-public class PointLightControl extends AbstractControl {
+public class LightPositionControl extends AbstractControl {
   private final Material material;
 
-  public PointLightControl(Material material) {
+  public LightPositionControl(Material material) {
     this.material = material;
   }
 
@@ -33,7 +33,7 @@ public class PointLightControl extends AbstractControl {
   }
 
   public Control cloneForSpatial(Spatial spatial) {
-    Control control = new PointLightControl(((Geometry)spatial).getMaterial());
+    Control control = new LightPositionControl(((Geometry)spatial).getMaterial());
     control.setSpatial(spatial);
     return control;
   }
