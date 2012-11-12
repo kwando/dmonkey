@@ -4,16 +4,19 @@
  */
 package me.merciless.dmonkey;
 
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import me.merciless.dmonkey.lights.Ambient;
 import me.merciless.dmonkey.lights.DLight;
 import me.merciless.dmonkey.lights.DPointLight;
+import me.merciless.dmonkey.lights.DSpotLight;
 
 import com.jme3.app.Application;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.Light;
+import com.jme3.light.Light.Type;
 import com.jme3.light.LightList;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
@@ -118,7 +121,7 @@ public final class DeferredSceneProcessor implements SceneProcessor {
 
 	public void preFrame(float tpf) {
 		this.tpf = tpf;
-		lightNode.updateLogicalState(tpf);
+		lightNode.updateLogicalState(this.tpf);
 	}
 
 	public void postQueue(RenderQueue rq) {
@@ -137,11 +140,12 @@ public final class DeferredSceneProcessor implements SceneProcessor {
 
 	public void postFrame(FrameBuffer out) {
 		rm.setForcedTechnique(null);
-		rm.renderViewPort(lightVp, tpf);
+		rm.renderViewPort(lightVp, 0);
 		
 		// Render the Ambient, if we have one
-		if(ambient != null)
+		if(ambient != null) {
 			rm.renderGeometry(ambient);
+		}
 		
 		if (debugLights) {
 			rm.setForcedMaterial(assets.loadMaterial("DMonkey/DebugMaterial.j3m"));
@@ -158,7 +162,8 @@ public final class DeferredSceneProcessor implements SceneProcessor {
 
 	private void setupLights() {
 		for(Spatial light : lightNode.getChildren()) {
-			light.addControl(new LightControl(light.getLocalTranslation()));
+			if(light instanceof DPointLight)
+				light.addControl(new LightControl(light.getLocalTranslation()));
 		}
 	}
 
@@ -177,20 +182,28 @@ public final class DeferredSceneProcessor implements SceneProcessor {
 			if(dLight != null) {
 				dLight.clean();
 			}
-			
-			// Shouln't i remove the light from it's previous node?
-			lightNode.addLight(light);
 		}
 
-		LightList lightList = lightNode.getLocalLightList(); // Uh feels dirty..
+		LightList lightList = node.getLocalLightList();
 		
 		int size = lightList.size();
 		
+		ArrayList<Light> al = new ArrayList<>();
 		for (int i = 0; i < size; i++) {
 			Light light = lightList.get(i);
 
-			addLight(light, null, false);
+			addLight(light, null);
+			al.add(light);
 		}
+		
+		// Clean all the lights, we don't need them there.
+		for (Light l : al)
+			node.removeLight(l);
+
+		al.clear();
+
+		System.out.println("R-LL: "+node.getLocalLightList().size());
+		System.out.println("L-LL: "+lightNode.getLocalLightList().size());
 	}
 
 	/**
@@ -201,32 +214,25 @@ public final class DeferredSceneProcessor implements SceneProcessor {
 			((DLight) light).updateAndGetMaterial();
 		}
 		
-		if(ambient != null)
+		if(ambient != null) {
+			
+			// it got removed before the processor began
+			if(ambient.getMaterial() == null)
+				ambient = null;
+
 			ambient.updateAndGetMaterial();
+		}
 	}
-	
+
+	/**
+	 * @param light
+	 */
 	public void removeLight(Light light) {
 
-		lightNode.removeLight(light);
-		
-		// Look for another one, if its the first one, else leave it be, the ambient class will handle the colors.
+		// XXX Supports only 1 ambient light, remove it and you got no ambient
 		if(light instanceof AmbientLight && (ambient != null && light == ambient.getLight())) {
-
 			ambient.clean();
 			ambient = null;
-
-			LightList lightList = lightNode.getLocalLightList(); // Uh feels dirty..
-			
-			int size = lightList.size();
-			
-			for (int i = 0; i < size; i++) {
-				light = lightList.get(i);
-				if(light instanceof AmbientLight) {
-					ambient = new Ambient(light, lightList);
-					break;
-				}
-			}
-			
 			return;
 		}
 
@@ -241,22 +247,16 @@ public final class DeferredSceneProcessor implements SceneProcessor {
 	 * @param light
 	 */
 	public <T extends DLight> T addLight(Light light) {
-		return addLight(light, null, true);
-	}
-	
-	public <T extends DLight> T addLight(Light light, Class<T> type) {
-		return addLight(light, type, true);
+		return addLight(light, null);
 	}
 	
 	@SuppressWarnings("unchecked")
-	private <T extends DLight> T addLight(Light light, Class<T> type, boolean add) {
-		
-		if(add)
-			lightNode.addLight(light);
+	private <T extends DLight> T addLight(Light light, Class<T> type) {
 		
 		switch (light.getType()) {
 			case Point: {
 				DPointLight l = new DPointLight(light);
+				System.out.println("Woot");
 				
 				if(isInitialized()) {
 					l.initiate(gbuffer, assets, vp);
@@ -266,15 +266,25 @@ public final class DeferredSceneProcessor implements SceneProcessor {
 				return (T) l;
 			}
 			case Spot: {
-				break;
+				DSpotLight sp = new DSpotLight(light);
+
+				if(isInitialized()) {
+					sp.initiate(gbuffer, assets, vp);
+				}
+				
+				lightNode.attachChild(sp);
+				return (T) sp;
 			}
 			case Ambient:
 				if(ambient == null) {
-					ambient = new Ambient(light, getLightList());
+					ambient = new Ambient(light);
 					if(isInitialized()) {
 						ambient.initiate(gbuffer, assets, vp);
 					}
 				}
+				else
+					ambient.addAmbientLight(light);
+
 				return (T) ambient;
 			case Directional:  // Elsewhere
 				break;
@@ -297,6 +307,10 @@ public final class DeferredSceneProcessor implements SceneProcessor {
 	
 	@SuppressWarnings("unchecked")
 	public <T extends DLight> T getDLight(Light light, Class<T> type) {
+		
+		if (light.getType() == Type.Ambient)
+			return (T) ambient;
+		
 		for(Spatial l : lightNode.getChildren()) {
 			DLight dl = (DLight)l;
 			if(dl.getLight() == light)
@@ -305,7 +319,7 @@ public final class DeferredSceneProcessor implements SceneProcessor {
 		return null;
 	}
 
-	public LightList getLightList() {
-		return lightNode.getLocalLightList();
+	public Ambient getAmbient() {
+		return ambient;
 	}
 }

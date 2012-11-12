@@ -2,7 +2,7 @@ package me.merciless.dmonkey.lights;
 
 import me.merciless.dmonkey.GBuffer;
 import me.merciless.dmonkey.LightQualityControl;
-import me.merciless.dmonkey.PointLightControl;
+import me.merciless.dmonkey.LightPositionControl;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.light.Light;
@@ -24,7 +24,7 @@ public final class DPointLight extends DLight {
 	
 	public DPointLight(Light light) {
 		super(light);
-		setName("PointLight Volume");
+		setName("Point Light Volume");
 		setMesh(new Sphere(6, 12, 0.5f));
 	}
 
@@ -42,7 +42,7 @@ public final class DPointLight extends DLight {
 	    material.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Additive);
 	    setMaterial(updateAndGetMaterial());
 
-	    addControl(new PointLightControl(material));
+	    addControl(new LightPositionControl(material));
 	    addControl(new LightQualityControl(material, vp.getCamera()));
 	}
 	
@@ -75,7 +75,6 @@ public final class DPointLight extends DLight {
 
 	    // XXX Uh two in one?
 	    material.setParam("LightPositions", VarType.Vector3Array, new Vector3f[]{ getLocalTranslation() });
-
 	    return material;
 	}
 

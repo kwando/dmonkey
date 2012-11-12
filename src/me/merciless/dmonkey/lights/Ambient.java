@@ -3,9 +3,8 @@ package me.merciless.dmonkey.lights;
 import me.merciless.dmonkey.GBuffer;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.light.AmbientLight;
 import com.jme3.light.Light;
-import com.jme3.light.LightList;
+import com.jme3.material.MatParam;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
@@ -24,14 +23,12 @@ import com.jme3.scene.shape.Quad;
 public class Ambient extends DLight {
 
 	private Material material;
-	private LightList lightList;
 	private ColorRGBA ambientLightColor = new ColorRGBA(0, 0, 0, 0);
 	private float intensity;
 
-	public Ambient(Light light, LightList ll) {
+	public Ambient(Light light) {
 		super(light);
-		lightList = ll;
-		setMesh(new Quad(1, 1));
+		setMesh(new Quad(1,1));
 		setName("Ambient Light Volume");
 	}
 
@@ -45,7 +42,15 @@ public class Ambient extends DLight {
 		rs.setBlendMode(RenderState.BlendMode.Additive);
 		rs.setDepthTest(false);
 		rs.setDepthWrite(false);
+		
+		MatParam mp = material.getParam("LightIntensity");
+
+		intensity = mp == null ? intensity = 0.3f : (float) mp.getValue();
+		
 		setMaterial(updateAndGetMaterial());
+		
+//		material.setVector3("LightDirection", new Vector3f(0.7473137f, -0.4404087f, -0.49755645f));
+//		material.setColor("DirectionalLightColor", ColorRGBA.DarkGray);
 	}
 
 	public void setLightIntensity(float intense) {
@@ -57,31 +62,23 @@ public class Ambient extends DLight {
 	
 	@Override
 	public Material updateAndGetMaterial() {
-		material.setColor("AmbientColor", getAmbientColor());
+		material.setColor("AmbientColor", ambientLightColor);
 		material.setFloat("LightIntensity", intensity);
 		return material;
 	}
 
-    private ColorRGBA getAmbientColor() {
-        ambientLightColor .set(0, 0, 0, 0);
-        for (int j = 0; j < lightList.size(); j++) {
-            Light l = lightList.get(j);
-            if (l instanceof AmbientLight) {
-                ambientLightColor.addLocal(l.getColor());
-            }
-        }
-        
-        if(ambientLightColor.a > 1)
-        	ambientLightColor.a = 1.0f;
-
-        return ambientLightColor;
-    }
-
-
 	@Override
 	public void clean() {
-		removeFromParent();
-		lightList = null;
+		setMaterial(null);
+		ambientLightColor = null;
+		material = null;
+	}
+
+	public void addAmbientLight(Light light) {
+		ambientLightColor.addLocal(light.getColor());
+
+		if(ambientLightColor.a > 1)
+        	ambientLightColor.a = 1.0f;
 	}
 
 }
