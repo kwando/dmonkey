@@ -188,7 +188,7 @@ public final class DeferredSceneProcessor implements SceneProcessor {
 		
 		int size = lightList.size();
 		
-		ArrayList<Light> al = new ArrayList<>();
+		ArrayList<Light> al = new ArrayList<Light>();
 		for (int i = 0; i < size; i++) {
 			Light light = lightList.get(i);
 
