@@ -6,6 +6,7 @@ package me.merciless.dmonkey;
 
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
+import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -38,11 +39,11 @@ public class PointLightControl extends AbstractControl {
 
   @Override
   protected void controlRender(RenderManager rm, ViewPort vp) {
-    material.setVector3("LightPosition", light.getPosition());
+    Matrix4f viewMatrix = vp.getCamera().getViewMatrix();
+    material.setVector3("LightPosition", viewMatrix.mult(light.getPosition()));
     material.setColor("LightColor", light.getColor());
     material.setFloat("LightRadius", 1f/light.getRadius());
     material.setFloat("LightIntensity", 10f); // unused
-    material.setParam("LightPositions", VarType.Vector3Array, new Vector3f[]{light.getPosition()});
   }
 
   public Control cloneForSpatial(Spatial spatial) {

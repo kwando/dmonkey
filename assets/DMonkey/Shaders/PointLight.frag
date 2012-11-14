@@ -12,9 +12,6 @@ uniform float m_LightIntensity;
 uniform float m_LightRadius;
 uniform vec4 m_LightColor;
 
-const int num_lights = 1;
-uniform vec3 m_LightPositions[num_lights];
-
 float linear_fallof(float D, float r, float kl){
   return D / (D + kl * r);
 }
@@ -71,10 +68,8 @@ void main() {
     albedo.rgb = gamma(albedo.rgb, 2.2);
     
     
-    for(int i = 0; i < num_lights; i++){
-      vec3 vsLightPos = (g_ViewMatrix * vec4(m_LightPositions[i], 1.0)).xyz;
-      gl_FragColor += perform_lighting(GBuffer.position, vsLightPos, GBuffer.normal,  albedo.rgb, m_LightColor, m_LightRadius);
-    }
+    
+    gl_FragColor = perform_lighting(GBuffer.position, m_LightPosition, GBuffer.normal,  albedo.rgb, m_LightColor, m_LightRadius);
 
     //gl_FragColor += 0.03;
     gl_FragColor *= albedo;

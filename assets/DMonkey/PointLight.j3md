@@ -11,7 +11,6 @@ MaterialDef PointLight {
 				Boolean fullscreen
 				Vector3 FrustumCorner
 				Vector2 FrustumNearFar
-        Vector3Array LightPositions
         Boolean specular : true
     }
 
