@@ -106,7 +106,7 @@ public class Main extends SimpleApplication {
 			if(!isPressed) {
 				switch (evt.getKeyCode()) {
 					case KeyInput.KEY_1:
-						PointLight light = someLights.remove(someLights.size());
+						PointLight light = someLights.remove(someLights.size() - 1);
 
 						if(light != null)
 							dsp.removeLight(light);
