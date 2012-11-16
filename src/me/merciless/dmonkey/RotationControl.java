@@ -33,12 +33,8 @@ public class RotationControl extends AbstractControl {
   }
 
   public Control cloneForSpatial(Spatial spatial) {
-    Control control = spatial.getControl(RotationControl.class);
-    if (control == null) {
-      control = new RotationControl(rot);
-      spatial.addControl(control);
-    }
-
+    Control control = new RotationControl(rot);
+    control.setSpatial(spatial);
     return control;
   }
 }
