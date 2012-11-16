@@ -4,13 +4,15 @@
  */
 package me.merciless.dmonkey;
 
+import me.merciless.dmonkey.lights.Ambient;
+import me.merciless.dmonkey.lights.DLight;
+
 import com.jme3.app.Application;
 import com.jme3.asset.AssetManager;
-import com.jme3.light.PointLight;
+import com.jme3.light.AmbientLight;
+import com.jme3.light.Light;
 import com.jme3.material.Material;
-import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
@@ -18,11 +20,9 @@ import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
-import com.jme3.scene.shape.Sphere;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
@@ -45,17 +45,12 @@ public class DeferredSceneProcessor implements SceneProcessor {
   private Geometry resolveQuad;
   private FrameBuffer lightBuffer;
   private Texture2D lightTexture;
-  private AmbientQuad ambient;
+  private final Ambient ambient;
   
-  private static Mesh pointLightMesh;
-  static{
-    pointLightMesh = new Sphere(8, 12, 0.5f);
-    pointLightMesh.setStatic();
-  }
-
   public DeferredSceneProcessor(Application app) {
     this.assets = app.getAssetManager();
     this.lightNode = new Node("BoundingVolumes");
+    ambient = new Ambient();
   }
 
   public void initialize(RenderManager rm, ViewPort vp) {
@@ -68,8 +63,9 @@ public class DeferredSceneProcessor implements SceneProcessor {
     lightVp.setClearFlags(true, false, false);
 
     reshape(vp, cam.getWidth(), cam.getHeight());
-    setupLights();
-
+    
+    ambient.initialize(this, gbuffer, assets);
+    scanRootNode();
 
     resolveQuad = new Geometry("ResolveQuad", new Quad(1, 1));
     Material resolveMat = new Material(assets, "DMonkey/Resolve.j3md");
@@ -85,6 +81,31 @@ public class DeferredSceneProcessor implements SceneProcessor {
     resolveQuad.setQueueBucket(RenderQueue.Bucket.Opaque);
   }
 
+  public void scanRootNode() {
+    // It's always the rootNode right?
+    Node rootNode = (Node) vp.getScenes().get(0);
+    DeferredShadingUtils.scanNode(this, rootNode);
+  }
+  
+  public DLight addLight(Light light) {
+	  return DeferredShadingUtils.addLight(this, light, true);
+  }
+  
+  public DLight getDLight(Light light) {
+	  return DeferredShadingUtils.getLight(this, light);
+  }
+  
+  public void removeLight(Light light) {
+	  if(light instanceof AmbientLight)
+		  ambient.removeAmbientLight(light);
+	  else {
+		  DLight l = DeferredShadingUtils.getLight(this, light);
+
+		  if(l != null)
+			  l.clean();
+	  }
+  }
+  
   public void reshape(ViewPort vp, int w, int h) {
     gbuffer = new GBuffer(w, h);
     lightBuffer = new FrameBuffer(w, h, 1);
@@ -120,8 +141,9 @@ public class DeferredSceneProcessor implements SceneProcessor {
 
   public void postFrame(FrameBuffer out) {
     rm.setForcedTechnique(null);
-    rm.renderViewPort(lightVp, 0);
-    ambient.render(rm);
+    rm.renderViewPort(lightVp, tpf);
+    rm.renderGeometry(ambient);
+    
     if (debugLights) {
       rm.setForcedMaterial(assets.loadMaterial("DMonkey/DebugMaterial.j3m"));
       rm.renderViewPortRaw(lightVp);
@@ -135,40 +157,30 @@ public class DeferredSceneProcessor implements SceneProcessor {
     rm = null;
   }
 
-  private void setupLights() {
-    ambient = new AmbientQuad(assets, gbuffer);
-    int side = 40;
-    for (int i = 0; i < side; i++) {
-      for (int j = 0; j < side; j++) {
-        PointLight pl = new PointLight();
-        pl.setPosition(Vector3f.UNIT_Y.add((i - side / 2) * 1.5f, 0, (j - side / 2) * 1.5f));
-        pl.setColor(ColorRGBA.randomColor().add(new ColorRGBA(0, 0, 0, 10 * 8.6f)));
-        pl.setRadius(20);
-        addPointLight(pl);
-      }
-    }
+	/**
+	 * @return the assets
+	 */
+	public AssetManager getAssetManager() {
+		return assets;
+	}
+	
+	public Ambient getAmbient() {
+		return ambient;
+	}
 
-
-  }
-
-  private void addPointLight(PointLight light) {
-    Spatial model = new Geometry("pontLightMesh", pointLightMesh);
-    Material material = new Material(assets, "DMonkey/PointLight.j3md");
-    material.setTexture("DiffuseBuffer", gbuffer.diffuse);
-    material.setTexture("DepthBuffer", gbuffer.Zbuffer);
-    material.setTexture("NormalBuffer", gbuffer.normals);
-
-    material.getAdditionalRenderState().setFaceCullMode(RenderState.FaceCullMode.Back);
-    material.getAdditionalRenderState().setDepthTest(true);
-    material.getAdditionalRenderState().setDepthWrite(false);
-    material.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Additive);
-
-    model.addControl(new PointLightControl(material, light));
-    model.addControl(new LightQualityControl(material, lightVp.getCamera()));
-
-
-    model.setMaterial(material);
-
-    lightNode.attachChild(model);
-  }
+	protected GBuffer getGBuffer() {
+		return gbuffer;
+	}
+	
+	protected ViewPort getLightViewport() {
+		return lightVp;
+	}
+	
+	protected ViewPort getMainViewPort() {
+		return vp;
+	}
+	
+	protected Node getLightNode() {
+		return lightNode;
+	}
 }

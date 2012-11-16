@@ -43,4 +43,16 @@ public class GBuffer {
     fbo.addColorTexture(diffuse);
     fbo.setMultiTarget(true);
   }
+  
+  public Texture2D getDiffuse() {
+	return diffuse;
+  }
+  
+  public Texture2D getNormals() {
+	return normals;
+  }
+  
+  public Texture2D getDepth() {
+	return Zbuffer;
+  }
 }
