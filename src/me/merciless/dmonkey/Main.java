@@ -32,8 +32,8 @@ import com.jme3.util.TangentBinormalGenerator;
  */
 public class Main extends SimpleApplication {
 
-	private ArrayList<PointLight> someLights = new ArrayList<PointLight>();
-	
+  private ArrayList<PointLight> someLights = new ArrayList<PointLight>();
+
   public static void main(String[] args) {
     Main app = new Main();
     AppSettings settings = new AppSettings(true);
@@ -47,6 +47,7 @@ public class Main extends SimpleApplication {
     app.start();
   }
   DeferredSceneProcessor dsp;
+
   @Override
   public void simpleInitApp() {
     viewPort.addProcessor(dsp = new DeferredSceneProcessor(this));
@@ -70,82 +71,88 @@ public class Main extends SimpleApplication {
     for (int i = 0; i < side; i++) {
       for (int j = 0; j < side; j++) {
         geom.setLocalTranslation((i - side / 2) * moveScale, FastMath.nextRandomFloat(), (j - side / 2) * moveScale);
-		cubes.attachChild(geom);
+        cubes.attachChild(geom);
         geom = geom.clone();
 
         PointLight pl = new PointLight();
 
-		pl.setPosition(geom.getLocalTranslation());
+        pl.setPosition(geom.getLocalTranslation());
 
-		ColorRGBA color = ColorRGBA.randomColor();
-		color.a = 10 * 8.6f;
-		pl.setColor(color);
-		pl.setRadius(5f);
-		rootNode.addLight(pl);
-		someLights.add(pl);
+        ColorRGBA color = ColorRGBA.randomColor();
+        color.a = 10 * 8.6f;
+        pl.setColor(color);
+        pl.setRadius(5f);
+        rootNode.addLight(pl);
+        someLights.add(pl);
       }
     }
 
     rootNode.attachChild(cubes);
-    
+
     inputManager.addRawInputListener(new RawInputListener() {
-		
-		@Override
-		public void onTouchEvent(TouchEvent evt) { }
-		
-		@Override
-		public void onMouseMotionEvent(MouseMotionEvent evt) { }
-		
-		@Override
-		public void onMouseButtonEvent(MouseButtonEvent evt) { }
-		
-		@Override
-		public void onKeyEvent(KeyInputEvent evt) {
-			boolean isPressed = evt.isPressed();
-			
-			if(!isPressed) {
-				switch (evt.getKeyCode()) {
-					case KeyInput.KEY_1:
-						PointLight light = someLights.remove(someLights.size() - 1);
+      @Override
+      public void onTouchEvent(TouchEvent evt) {
+      }
 
-						if(light != null)
-							dsp.removeLight(light);
-						break;
-	
-					default:
-						break;
-				}
-			}
-		}
-		
-		@Override
-		public void onJoyButtonEvent(JoyButtonEvent evt) { }
-		
-		@Override
-		public void onJoyAxisEvent(JoyAxisEvent evt) { }
-		
-		@Override
-		public void endInput() { }
-		
-		@Override
-		public void beginInput() { }
-	});
+      @Override
+      public void onMouseMotionEvent(MouseMotionEvent evt) {
+      }
+
+      @Override
+      public void onMouseButtonEvent(MouseButtonEvent evt) {
+      }
+
+      @Override
+      public void onKeyEvent(KeyInputEvent evt) {
+        boolean isPressed = evt.isPressed();
+
+        if (!isPressed) {
+          switch (evt.getKeyCode()) {
+            case KeyInput.KEY_1:
+              PointLight light = someLights.remove(someLights.size() - 1);
+
+              if (light != null) {
+                dsp.removeLight(light);
+              }
+              break;
+
+            default:
+              break;
+          }
+        }
+      }
+
+      @Override
+      public void onJoyButtonEvent(JoyButtonEvent evt) {
+      }
+
+      @Override
+      public void onJoyAxisEvent(JoyAxisEvent evt) {
+      }
+
+      @Override
+      public void endInput() {
+      }
+
+      @Override
+      public void beginInput() {
+      }
+    });
   }
-
   private float time;
   private float period = 10;
 
   @Override
   public void simpleUpdate(float tpf) {
-	    time += tpf;
-	    if (time > period) {
-	      time -= period;
-	    }
-	    
-	    for (PointLight slight : someLights) {
-	    	Vector3f origin = slight.getPosition();
-	    	slight.setPosition(new Vector3f(origin.x, FastMath.sin(time / period * FastMath.TWO_PI) * 1 + 1.2f, origin.z));
-		}
+    time += tpf;
+    if (time > period) {
+      time -= period;
+    }
+
+    for (PointLight slight : someLights) {
+      Vector3f origin = slight.getPosition();
+      slight.setPosition(new Vector3f(origin.x, FastMath.sin(time / period * FastMath.TWO_PI) * 1 + 1.2f, origin.z));
+    }
   }
 
   @Override
