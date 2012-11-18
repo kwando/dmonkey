@@ -64,6 +64,10 @@ public class Main extends SimpleApplication {
     Spatial geom = assetManager.loadModel("Models/brokenCube.j3o");
     geom.setMaterial(mat);
     TangentBinormalGenerator.generate(geom);
+    geom.addControl(new RotationControl(new Vector3f(
+            FastMath.nextRandomFloat(),
+            FastMath.nextRandomFloat(),
+            FastMath.nextRandomFloat())));
     BatchNode cubes = new BatchNode();
     int side = 20;
     float moveScale = 1.5f;
