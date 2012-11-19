@@ -1,0 +1,48 @@
+#import "DMonkey/Shaders/GBuffer.glsllib"
+
+vec3 gamma(vec3 color, float gamma){
+  color.r = pow(color.r, gamma);
+  color.g = pow(color.g, gamma);
+  color.b = pow(color.b, gamma);
+  return color;
+}
+
+struct Light {
+	vec4 color;
+	vec3 position;
+
+	vec3 direction;
+};
+
+vec4 ComputeLighting(struct Light light) {
+
+    float lambert = clamp(dot(GBuffer.normal, light.direction), 0.0, 1.0);
+    
+    vec4 DiffuseColor  = vec4(0, 0, 0, 0);
+    vec4 SpecularColor = vec4(0, 0, 0, 0);
+
+    if (lambert > 0) {
+    	DiffuseColor = light.color * lambert;
+
+	    #ifdef SPECULAR
+		    vec3 vsCameraDir = normalize(GBuffer.position);
+		    vec3 reflection = reflect(light.direction, GBuffer.normal);
+		    float specular = clamp(dot(normalize(vsCameraDir), normalize(reflection)), 0.0, 1.0);
+		    specular = pow(specular, 120.0);
+
+		    if (specular > 0) {
+            	SpecularColor = vec4(light.color.rgb, 1.0f) * GBuffer.specular * specular;
+        	}
+	    #else
+	    	float specular = 0.0;
+	    #endif
+	}
+
+    return DiffuseColor + SpecularColor;
+}
+
+// Other uses.. later on
+void prepare() {
+	// Do it here
+	dm_decode();
+}
