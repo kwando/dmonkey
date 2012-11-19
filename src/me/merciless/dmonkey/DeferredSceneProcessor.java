@@ -9,7 +9,6 @@ import me.merciless.dmonkey.lights.DLight;
 
 import com.jme3.app.Application;
 import com.jme3.asset.AssetManager;
-import com.jme3.light.AmbientLight;
 import com.jme3.light.Light;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
@@ -79,6 +78,7 @@ public class DeferredSceneProcessor implements SceneProcessor {
     resolveMat.setTexture("LightBuffer", lightTexture);
 
     resolveQuad.setQueueBucket(RenderQueue.Bucket.Opaque);
+    lightNode.updateGeometricState();
   }
 
   public void scanRootNode() {
@@ -96,14 +96,17 @@ public class DeferredSceneProcessor implements SceneProcessor {
   }
   
   public void removeLight(Light light) {
-	  if(light instanceof AmbientLight)
-		  ambient.removeAmbientLight(light);
-	  else {
-		  DLight l = DeferredShadingUtils.getLight(this, light);
-
-		  if(l != null)
-			  l.clean();
-	  }
+		switch (light.getType()) {
+			case Ambient:
+			case Directional:
+				ambient.removeLight(light);
+				break;
+			default:
+				DLight l = DeferredShadingUtils.getLight(this, light);
+	
+				if (l != null)
+					l.clean();
+		}
   }
   
   public void reshape(ViewPort vp, int w, int h) {
@@ -142,9 +145,11 @@ public class DeferredSceneProcessor implements SceneProcessor {
   public void postFrame(FrameBuffer out) {
     rm.setForcedTechnique(null);
     rm.renderViewPort(lightVp, tpf);
-    rm.renderGeometry(ambient);
+    
+    ambient.render(rm, vp);
     
     if (debugLights) {
+   	  lightNode.updateGeometricState();
       rm.setForcedMaterial(assets.loadMaterial("DMonkey/DebugMaterial.j3m"));
       rm.renderViewPortRaw(lightVp);
       rm.setForcedMaterial(null);

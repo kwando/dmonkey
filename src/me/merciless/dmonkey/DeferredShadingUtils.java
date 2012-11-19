@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import me.merciless.dmonkey.lights.DLight;
 import me.merciless.dmonkey.lights.DPointLight;
+import me.merciless.dmonkey.lights.DSpotLight;
 
 import com.jme3.light.Light;
 import com.jme3.light.LightList;
@@ -60,12 +61,19 @@ public final class DeferredShadingUtils {
 
 		switch (light.getType()) {
 			case Ambient:
-				dsp.getAmbient().addAmbientLight(light);
+			case Directional:
+				dsp.getAmbient().addLight(light);
 				return dsp.getAmbient();
 			case Point: {
 				DPointLight l = new DPointLight(light);
 				l.initialize(dsp, dsp.getGBuffer(), dsp.getAssetManager());
 				l.addControl(new LightQualityControl(l.getMaterial(), dsp.getLightViewport().getCamera()));
+				dsp.getLightNode().attachChild(l);
+				return l;
+			}
+			case Spot: {
+				DSpotLight l = new DSpotLight(light);
+				l.initialize(dsp, dsp.getGBuffer(), dsp.getAssetManager());
 				dsp.getLightNode().attachChild(l);
 				return l;
 			}

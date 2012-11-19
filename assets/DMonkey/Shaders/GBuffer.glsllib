@@ -1,18 +1,14 @@
-#define DM_NORMAL_BUFFER m_NormalBuffer
-#define DM_DIFFUSE_BUFFER m_DiffuseBuffer
-#define DM_DEPTH_BUFFER m_DepthBuffer
-
-uniform sampler2D DM_NORMAL_BUFFER;
-uniform sampler2D DM_DIFFUSE_BUFFER;
-uniform sampler2D DM_DEPTH_BUFFER;
-
-
-/**
- * These uniform should be passed in from JME;
- */
-uniform mat4 g_ViewProjectionMatrixInverse;
+// Global uniforms from JME
 uniform mat4 g_ProjectionMatrixInverse;
 uniform mat4 g_ViewMatrix;
+uniform vec2 g_Resolution;
+
+// MRT Textures
+uniform sampler2D m_NormalBuffer;
+uniform sampler2D m_DiffuseBuffer;
+uniform sampler2D m_DepthBuffer;
+
+// Material
 uniform vec3 m_FrustumCorner;
 uniform vec2 m_FrustumNearFar;
 
@@ -26,7 +22,7 @@ struct DM_GBuffer{
 } GBuffer;
 
 float dm_depth(vec2 tc){
-  return texture2D(DM_DEPTH_BUFFER, tc).r;
+  return texture2D(m_DepthBuffer, tc).r;
 }
 
 vec3 dm_position(vec2 tc, float projectiveDepth){
@@ -36,7 +32,7 @@ vec3 dm_position(vec2 tc, float projectiveDepth){
 }
 
 vec3 dm_normal(vec2 tc){
-  return normalize((texture2D(DM_NORMAL_BUFFER, tc) * 2.0 - 1.0).rgb);
+  return normalize((texture2D(m_NormalBuffer, tc) * 2.0 - 1.0).rgb);
 }
 
 /**
@@ -48,19 +44,21 @@ float dm_non_linear_2_linear_depth(float w){
 	return (w - wnear) * (wfar / (wfar - wnear));
 }
 
-void dm_decode(vec2 tc){
+void dm_decode() {
+	vec2 tc = gl_FragCoord.xy/g_Resolution;
+	
 	GBuffer.depth = dm_depth(tc);
 	GBuffer.linear_depth = dm_non_linear_2_linear_depth(GBuffer.depth);
 	
 	// Decode normal and specular
-	vec4 normalAndSpecluar = texture2D(DM_NORMAL_BUFFER, tc);	
+	vec4 normalAndSpecluar = texture2D(m_NormalBuffer, tc);	
 	GBuffer.normal = normalAndSpecluar.rgb * 2.0 - 1.0;
 	GBuffer.specular = normalAndSpecluar.a;
 
-  // Decode position
-  GBuffer.position = dm_position(tc, GBuffer.depth);
+	// Decode position
+	GBuffer.position = dm_position(tc, GBuffer.depth);
 	
-  // Recover albedo
-	GBuffer.albedo = texture2D(DM_DIFFUSE_BUFFER, tc).rgb;
+	// Recover albedo
+	GBuffer.albedo = texture2D(m_DiffuseBuffer, tc).rgb;
 }
 

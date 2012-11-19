@@ -14,14 +14,9 @@ MaterialDef GBuffer {
         FragmentShader GLSL100: DMonkey/Shaders/GBuffer.frag
 
         WorldParameters {
-						ProjectionMatrixInverse
             WorldViewProjectionMatrix
-						WorldViewNatrix
-						ViewMatrix
-            ViewMatrixInverse
-						NormalMatrix
-            WorldMatrixInverse
-            WorldMatrix
+			ViewMatrix
+			NormalMatrix
             FrustumNearFar
             Time
         }
@@ -41,14 +36,9 @@ MaterialDef GBuffer {
         FragmentShader GLSL100: DMonkey/Shaders/GBuffer.frag
 
         WorldParameters {
-						ProjectionMatrixInverse
             WorldViewProjectionMatrix
-						WorldViewNatrix
-						ViewMatrix
-            ViewMatrixInverse
-						NormalMatrix
-            WorldMatrixInverse
-            WorldMatrix
+			ViewMatrix
+			NormalMatrix
             FrustumNearFar
             Time
         }

@@ -5,8 +5,12 @@ MaterialDef AmbientLight {
         Texture2D DepthBuffer
         Texture2D NormalBuffer
         Texture2D DiffuseBuffer
-        Vector3 LightPosition
+
+		Vector4Array DirectionalColors
+		Vector3Array Directions
+
         Float LightIntensity
+        Int DirectionalLights
         
     }
 
@@ -15,7 +19,10 @@ MaterialDef AmbientLight {
         FragmentShader GLSL100: DMonkey/Shaders/AmbientLight.frag
 
         WorldParameters {
-          Resolution
+            ViewMatrix
+			ProjectionMatrixInverse
+            WorldViewProjectionMatrix
+            Resolution
         }
     }
 

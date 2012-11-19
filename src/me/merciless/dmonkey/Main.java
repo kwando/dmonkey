@@ -3,6 +3,7 @@ package me.merciless.dmonkey;
 import java.util.ArrayList;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.app.state.ScreenshotAppState;
 import com.jme3.input.KeyInput;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.event.JoyAxisEvent;
@@ -11,7 +12,11 @@ import com.jme3.input.event.KeyInputEvent;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
 import com.jme3.input.event.TouchEvent;
+import com.jme3.light.AmbientLight;
+import com.jme3.light.DirectionalLight;
+import com.jme3.light.Light;
 import com.jme3.light.PointLight;
+import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
@@ -32,7 +37,7 @@ import com.jme3.util.TangentBinormalGenerator;
  */
 public class Main extends SimpleApplication {
 
-	private ArrayList<PointLight> someLights = new ArrayList<PointLight>();
+	private ArrayList<Light> someLights = new ArrayList<Light>();
 	
   public static void main(String[] args) {
     Main app = new Main();
@@ -47,6 +52,7 @@ public class Main extends SimpleApplication {
     app.start();
   }
   DeferredSceneProcessor dsp;
+  SpotLight sp = new SpotLight();
   @Override
   public void simpleInitApp() {
     viewPort.addProcessor(dsp = new DeferredSceneProcessor(this));
@@ -58,6 +64,13 @@ public class Main extends SimpleApplication {
 
     flyCam.setMoveSpeed(10);
 
+	sp.setColor(ColorRGBA.Red);
+	sp.setPosition(new Vector3f(0, 3.9f, 0));
+	sp.setDirection(new Vector3f(0, -1, 0).normalizeLocal());
+	//sp.setDirection(new Vector3f(0.0077216243f, -0.14402537f, 0.98954386f).normalizeLocal());
+	sp.setSpotOuterAngle(20f  * FastMath.DEG_TO_RAD);
+	sp.setSpotRange(15f);
+	rootNode.addLight(sp);
 
     Material mat = assetManager.loadMaterial("DMonkey/TestMaterial.j3m");
     Spatial geom = assetManager.loadModel("Models/brokenCube.j3o");
@@ -81,13 +94,36 @@ public class Main extends SimpleApplication {
 		color.a = 10 * 8.6f;
 		pl.setColor(color);
 		pl.setRadius(5f);
-		rootNode.addLight(pl);
-		someLights.add(pl);
+//		rootNode.addLight(pl);
+//		someLights.add(pl);
       }
     }
 
     rootNode.attachChild(cubes);
+
+    AmbientLight al = new AmbientLight();
+    al.setColor(ColorRGBA.DarkGray);
+    rootNode.addLight(al);
     
+    DirectionalLight dl = new DirectionalLight();
+    dl.setColor(ColorRGBA.Red);
+    dl.setDirection(new Vector3f(1,-1,0).normalize());
+    someLights.add(dl);
+    rootNode.addLight(dl);
+    
+    dl = new DirectionalLight();
+    dl.setColor(ColorRGBA.Green);
+    dl.setDirection(new Vector3f(1,0,0).normalize());
+    someLights.add(dl);
+    rootNode.addLight(dl);
+    
+    dl = new DirectionalLight();
+    dl.setColor(ColorRGBA.Blue);
+    dl.setDirection(new Vector3f(0,0,1).normalize());
+    someLights.add(dl);
+    rootNode.addLight(dl);
+    
+    stateManager.attach(new ScreenshotAppState("E:/Game-Development/Workbench/dmonkey2/"));
     inputManager.addRawInputListener(new RawInputListener() {
 		
 		@Override
@@ -106,12 +142,33 @@ public class Main extends SimpleApplication {
 			if(!isPressed) {
 				switch (evt.getKeyCode()) {
 					case KeyInput.KEY_1:
-						PointLight light = someLights.remove(someLights.size() - 1);
+						if(someLights.isEmpty()) {
+							System.out.println("No more lights to remove");
+							return;
+						}
+						Light light = someLights.remove(someLights.size() - 1);
 
 						if(light != null)
 							dsp.removeLight(light);
 						break;
 	
+					case KeyInput.KEY_2: {
+						Vector3f pos = sp.getPosition();
+						pos.y -= 0.1f;
+						sp.setPosition(pos);
+						break;
+					}
+					case KeyInput.KEY_3: {
+						Vector3f pos = sp.getPosition();
+						pos.y += 0.1f;
+						sp.setPosition(pos);
+						break;
+					}
+					case KeyInput.KEY_4: {
+						sp.setPosition(cam.getLocation());
+						sp.setDirection(cam.getDirection());
+						break;
+					}
 					default:
 						break;
 				}
@@ -142,9 +199,11 @@ public class Main extends SimpleApplication {
 	      time -= period;
 	    }
 	    
-	    for (PointLight slight : someLights) {
-	    	Vector3f origin = slight.getPosition();
-	    	slight.setPosition(new Vector3f(origin.x, FastMath.sin(time / period * FastMath.TWO_PI) * 1 + 1.2f, origin.z));
+	    for (Light slight : someLights) {
+	    	if(slight instanceof PointLight) {
+		    	Vector3f origin = ((PointLight) slight).getPosition();
+		    	((PointLight) slight).setPosition(new Vector3f(origin.x, FastMath.sin(time / period * FastMath.TWO_PI) * 1 + 1.2f, origin.z));
+	    	}
 		}
   }
 
