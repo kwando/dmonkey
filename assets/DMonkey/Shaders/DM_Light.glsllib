@@ -21,7 +21,7 @@ vec4 ComputeLighting(struct Light light) {
     vec4 DiffuseColor  = vec4(0, 0, 0, 0);
     vec4 SpecularColor = vec4(0, 0, 0, 0);
 
-    if (lambert > 0) {
+    if (lambert > 0.0) {
     	DiffuseColor = light.color * lambert;
 
 	    #ifdef SPECULAR
@@ -30,8 +30,8 @@ vec4 ComputeLighting(struct Light light) {
 		    float specular = clamp(dot(normalize(vsCameraDir), normalize(reflection)), 0.0, 1.0);
 		    specular = pow(specular, 120.0);
 
-		    if (specular > 0) {
-            	SpecularColor = vec4(light.color.rgb, 1.0f) * GBuffer.specular * specular;
+		    if (specular > 0.0) {
+            	SpecularColor = vec4(light.color.rgb, 1.0) * GBuffer.specular * specular;
         	}
 	    #else
 	    	float specular = 0.0;
