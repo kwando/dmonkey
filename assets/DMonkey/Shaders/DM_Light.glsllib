@@ -14,7 +14,7 @@ struct Light {
 	vec3 direction;
 };
 
-vec4 ComputeLighting(struct Light light) {
+vec4 ComputeLighting(Light light) {
 
     float lambert = clamp(dot(GBuffer.normal, light.direction), 0.0, 1.0);
     
