@@ -18,7 +18,7 @@ void main() {
 
 	vec4 dirColors;
 
-	for(int i = 0; i < m_DirectionalLights; i++) {
+	for(int i = 0; i < 3; i++) {
 		vec3 dir = -(g_ViewMatrix * vec4(m_Directions[i], 0)).xyz;
 
 		Light light = Light(m_DirectionalColors[i], dir, dir);
