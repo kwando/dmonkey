@@ -31,20 +31,21 @@ void main() {
     vec3 LightDir = normalize((g_ViewMatrix * vec4(m_LightDirection, 0.0)).xyz);
 
     Light light = Light(m_LightColor, m_LightPosition, LightDir);
-	vec4 color = light.color + ComputeLighting(light);
+    vec4 color = light.color + ComputeLighting(light);
 
     // GammaCorrect textures
     vec4 albedo = vec4(gamma(GBuffer.albedo, 2.2), 1.0);
 
-    float fallof = clamp(dot(normalize(GBuffer.position - light.position), LightDir), 0.0, 1.0);
+    vec3 LightVector = GBuffer.position - light.position;
+    float fallof = clamp(dot(normalize(LightVector), LightDir), 0.0, 1.0);
     
     if(cos(m_CutoffAngle/2.0) > fallof || dot(LightDir, GBuffer.normal) > 0.0){
     	discard;
     }
 
-    // Range fallof
-    fallof = clamp(m_LightRange - length(GBuffer.position - light.position),0.0, 5.0)/5.0;
-    fallof = fallof * fallof;
+    // Calculate range fallof
+    fallof = dot(LightVector, LightVector) / (m_LightRange * m_LightRange);
+    fallof = 1.0 - clamp(fallof, 0.0, 1.0);
 
     gl_FragColor = color * fallof * albedo;
 }
