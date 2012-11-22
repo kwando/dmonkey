@@ -26,11 +26,7 @@ public abstract class DLight<T extends Light> extends Geometry {
 	public abstract void clean();
 	
 	public T getLight() {
-		return (T)light;
-	}
-	
-	public T getLight(Class<T> type) {
-		return (T)light;
+		return light;
 	}
 
 	@Override
