@@ -25,6 +25,8 @@ import com.jme3.scene.shape.Quad;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
+import me.merciless.dmonkey.lights.DPointLight;
+import me.merciless.dmonkey.lights.DSpotLight;
 
 /**
  *
@@ -87,14 +89,6 @@ public class DeferredSceneProcessor implements SceneProcessor {
     DeferredShadingUtils.scanNode(this, rootNode);
   }
   
-  public DLight addLight(Light light) {
-	  return DeferredShadingUtils.addLight(this, light, true);
-  }
-  
-  public DLight getDLight(Light light) {
-	  return DeferredShadingUtils.getLight(this, light);
-  }
-  
   public void removeLight(Light light) {
 		switch (light.getType()) {
 			case Ambient:
@@ -102,12 +96,50 @@ public class DeferredSceneProcessor implements SceneProcessor {
 				ambient.removeLight(light);
 				break;
 			default:
-				DLight l = DeferredShadingUtils.getLight(this, light);
+				DLight l = this.getLight(light);
 	
 				if (l != null)
 					l.clean();
 		}
   }
+  
+  public DLight addLight(Light light, boolean check) {
+    DeferredSceneProcessor dsp = this;
+		if (check) {
+			DLight l = getLight(light);
+			if (l != null)
+				return l;
+		}
+
+		switch (light.getType()) {
+			case Ambient:
+			case Directional:
+				dsp.getAmbient().addLight(light);
+				return dsp.getAmbient();
+			case Point: {
+      DPointLight l = new DPointLight(light);
+				l.initialize(dsp, dsp.getGBuffer(), dsp.getAssetManager());
+				l.addControl(new LightQualityControl(l.getMaterial(), dsp.getLightViewport().getCamera()));
+				dsp.getLightNode().attachChild(l);
+				return l;
+			}
+			case Spot: {
+				DSpotLight l = new DSpotLight(light);
+				l.initialize(dsp, dsp.getGBuffer(), dsp.getAssetManager());
+				dsp.getLightNode().attachChild(l);
+				return l;
+			}
+			default:
+				System.out.println("Unsuported light type: " + light.getType() + " - " + light.getName());
+				break;
+		}
+
+		return null;
+	}
+  public DLight getLight(Light light) {
+		String id = "DPS-" + light.getType() + "-[" + light.getName() + "/" + light.hashCode() + "]";
+		return (DLight) this.getLightNode().getChild(id);
+	}
   
   public void reshape(ViewPort vp, int w, int h) {
     gbuffer = new GBuffer(w, h);

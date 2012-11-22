@@ -28,13 +28,13 @@ public final class DeferredShadingUtils {
 
 		for (Light light : lights) {
 
-			if (getLight(dsp, light) != null) {
+			if (dsp.getLight(light) != null) {
 				processed.add(light);
 				continue;
 			}
 
 			// TADA
-			addLight(dsp, light, false);
+			dsp.addLight(light, false);
 		}
 
 		for (Light light : processed) {
@@ -49,44 +49,5 @@ public final class DeferredShadingUtils {
 				}
 			}
 		}
-	}
-
-	protected static DLight addLight(DeferredSceneProcessor dsp, Light light, boolean check) {
-
-		if (check) {
-			DLight l = getLight(dsp, light);
-			if (l != null)
-				return l;
-		}
-
-		switch (light.getType()) {
-			case Ambient:
-			case Directional:
-				dsp.getAmbient().addLight(light);
-				return dsp.getAmbient();
-			case Point: {
-				DPointLight l = new DPointLight(light);
-				l.initialize(dsp, dsp.getGBuffer(), dsp.getAssetManager());
-				l.addControl(new LightQualityControl(l.getMaterial(), dsp.getLightViewport().getCamera()));
-				dsp.getLightNode().attachChild(l);
-				return l;
-			}
-			case Spot: {
-				DSpotLight l = new DSpotLight(light);
-				l.initialize(dsp, dsp.getGBuffer(), dsp.getAssetManager());
-				dsp.getLightNode().attachChild(l);
-				return l;
-			}
-			default:
-				System.out.println("Unsuported light type: " + light.getType() + " - " + light.getName());
-				break;
-		}
-
-		return null;
-	}
-
-	protected static DLight getLight(DeferredSceneProcessor dsp, Light light) {
-		String id = "DPS-" + light.getType() + "-[" + light.getName() + "/" + light.hashCode() + "]";
-		return (DLight) dsp.getLightNode().getChild(id);
 	}
 }
