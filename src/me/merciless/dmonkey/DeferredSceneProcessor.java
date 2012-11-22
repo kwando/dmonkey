@@ -48,12 +48,12 @@ public class DeferredSceneProcessor implements SceneProcessor {
   private Geometry resolveQuad;
   private FrameBuffer lightBuffer;
   private Texture2D lightTexture;
-  private final Ambient ambient;
+ // private final Ambient ambient;
   
   public DeferredSceneProcessor(Application app) {
     this.assets = app.getAssetManager();
     this.lightNode = new Node("BoundingVolumes");
-    ambient = new Ambient();
+   // ambient = new Ambient();
   }
 
   public void initialize(RenderManager rm, ViewPort vp) {
@@ -67,7 +67,7 @@ public class DeferredSceneProcessor implements SceneProcessor {
 
     reshape(vp, cam.getWidth(), cam.getHeight());
     
-    ambient.initialize(this, gbuffer, assets);
+    //ambient.doInitialize(this, gbuffer, assets);
     scanRootNode();
 
     resolveQuad = new Geometry("ResolveQuad", new Quad(1, 1));
@@ -95,7 +95,7 @@ public class DeferredSceneProcessor implements SceneProcessor {
 		switch (light.getType()) {
 			case Ambient:
 			case Directional:
-				ambient.removeLight(light);
+				//ambient.removeLight(light);
 				break;
 			default:
 				DLight l = this.getLight(light);
@@ -116,18 +116,19 @@ public class DeferredSceneProcessor implements SceneProcessor {
 		switch (light.getType()) {
 			case Ambient:
 			case Directional:
-				ambient.addLight(light);
-				return ambient;
+				//ambient.addLight(light);
+				//return ambient;
+        return null;
 			case Point: {
+        System.out.println("pointlight added");
       DPointLight l = new DPointLight((PointLight)light);
-				l.initialize(dsp, gbuffer, assets);
-				l.addControl(new LightQualityControl(l.getMaterial(), lightVp.getCamera()));
+				l.doInitialize(dsp, gbuffer, assets);
 				dsp.lightNode.attachChild(l);
 				return l;
 			}
 			case Spot: {
 				DSpotLight l = new DSpotLight((SpotLight)light);
-				l.initialize(dsp, gbuffer, assets);
+				l.doInitialize(dsp, gbuffer, assets);
 				dsp.lightNode.attachChild(l);
 				return l;
 			}
@@ -180,7 +181,7 @@ public class DeferredSceneProcessor implements SceneProcessor {
     rm.setForcedTechnique(null);
     rm.renderViewPort(lightVp, tpf);
     
-    ambient.render(rm, vp);
+  //  ambient.render(rm, vp);
     
     if (debugLights) {
    	  lightNode.updateGeometricState();
@@ -194,5 +195,9 @@ public class DeferredSceneProcessor implements SceneProcessor {
 
   public void cleanup() {
     rm = null;
+  }
+
+  public Camera getCamera() {
+    return lightVp.getCamera();
   }
 }

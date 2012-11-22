@@ -15,12 +15,21 @@ import com.jme3.scene.Geometry;
 public abstract class DLight<T extends Light> extends Geometry {
 
 	private final T light;
+  private boolean isInitialized = false;
+  private GBuffer gbuffer;
+  private DeferredSceneProcessor dsp;
+  private AssetManager assetManager;
 
 	public DLight(T light) {
 		this.light = light;
 	}
 
-	public abstract void initialize(DeferredSceneProcessor dsp, GBuffer buff, AssetManager assetManager);
+  public void doInitialize(DeferredSceneProcessor dsp, GBuffer buff, AssetManager assetManager){
+    this.dsp = dsp;
+    this.gbuffer = buff;
+    this.assetManager = assetManager;
+  }
+	protected abstract void initialize(DeferredSceneProcessor dsp, GBuffer buff, AssetManager assetManager);
 	public abstract void render(RenderManager rm, ViewPort vp);
 	public abstract void update(float tpf);
 	public abstract void clean();
@@ -42,6 +51,10 @@ public abstract class DLight<T extends Light> extends Geometry {
 	
 	@Override
 	public void updateLogicalState(float tpf) {
+    if(!isInitialized){
+      initialize(dsp, gbuffer, assetManager);
+      isInitialized = true;
+    }
 		update(tpf);
 		super.updateLogicalState(tpf);
 	}

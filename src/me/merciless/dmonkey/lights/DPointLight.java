@@ -12,6 +12,7 @@ import com.jme3.math.Matrix4f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.shape.Sphere;
+import me.merciless.dmonkey.LightQualityControl;
 
 /**
  * @author Seth
@@ -40,6 +41,7 @@ public final class DPointLight extends DLight<PointLight> {
 	    material.getAdditionalRenderState().setDepthTest(true);
 	    material.getAdditionalRenderState().setDepthWrite(false);
 	    material.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Additive);
+      addControl(new LightQualityControl(material, dsp.getCamera()));
 	}
 
 	@Override
