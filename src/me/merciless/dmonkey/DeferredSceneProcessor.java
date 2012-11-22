@@ -114,18 +114,18 @@ public class DeferredSceneProcessor implements SceneProcessor {
 		switch (light.getType()) {
 			case Ambient:
 			case Directional:
-				dsp.getAmbient().addLight(light);
-				return dsp.getAmbient();
+				ambient.addLight(light);
+				return ambient;
 			case Point: {
       DPointLight l = new DPointLight(light);
-				l.initialize(dsp, dsp.getGBuffer(), dsp.getAssetManager());
-				l.addControl(new LightQualityControl(l.getMaterial(), dsp.getLightViewport().getCamera()));
+				l.initialize(dsp, gbuffer, assets);
+				l.addControl(new LightQualityControl(l.getMaterial(), lightVp.getCamera()));
 				dsp.lightNode.attachChild(l);
 				return l;
 			}
 			case Spot: {
 				DSpotLight l = new DSpotLight(light);
-				l.initialize(dsp, dsp.getGBuffer(), dsp.getAssetManager());
+				l.initialize(dsp, gbuffer, assets);
 				dsp.lightNode.attachChild(l);
 				return l;
 			}
@@ -193,27 +193,4 @@ public class DeferredSceneProcessor implements SceneProcessor {
   public void cleanup() {
     rm = null;
   }
-
-	/**
-	 * @return the assets
-	 */
-	public AssetManager getAssetManager() {
-		return assets;
-	}
-	
-	public Ambient getAmbient() {
-		return ambient;
-	}
-
-	protected GBuffer getGBuffer() {
-		return gbuffer;
-	}
-	
-	protected ViewPort getLightViewport() {
-		return lightVp;
-	}
-	
-	protected ViewPort getMainViewPort() {
-		return vp;
-	}
 }
