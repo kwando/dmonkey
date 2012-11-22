@@ -120,13 +120,13 @@ public class DeferredSceneProcessor implements SceneProcessor {
       DPointLight l = new DPointLight(light);
 				l.initialize(dsp, dsp.getGBuffer(), dsp.getAssetManager());
 				l.addControl(new LightQualityControl(l.getMaterial(), dsp.getLightViewport().getCamera()));
-				dsp.getLightNode().attachChild(l);
+				dsp.lightNode.attachChild(l);
 				return l;
 			}
 			case Spot: {
 				DSpotLight l = new DSpotLight(light);
 				l.initialize(dsp, dsp.getGBuffer(), dsp.getAssetManager());
-				dsp.getLightNode().attachChild(l);
+				dsp.lightNode.attachChild(l);
 				return l;
 			}
 			default:
@@ -138,7 +138,7 @@ public class DeferredSceneProcessor implements SceneProcessor {
 	}
   public DLight getLight(Light light) {
 		String id = "DPS-" + light.getType() + "-[" + light.getName() + "/" + light.hashCode() + "]";
-		return (DLight) this.getLightNode().getChild(id);
+		return (DLight) lightNode.getChild(id);
 	}
   
   public void reshape(ViewPort vp, int w, int h) {
@@ -215,9 +215,5 @@ public class DeferredSceneProcessor implements SceneProcessor {
 	
 	protected ViewPort getMainViewPort() {
 		return vp;
-	}
-	
-	protected Node getLightNode() {
-		return lightNode;
 	}
 }
