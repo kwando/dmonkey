@@ -16,9 +16,9 @@ import com.jme3.scene.shape.Sphere;
 /**
  * @author Seth
  */
-public final class DPointLight extends DLight {
+public final class DPointLight extends DLight<PointLight> {
 
-	public DPointLight(Light light) {
+	public DPointLight(PointLight light) {
 		super(light);
 
 		// Better option? lol

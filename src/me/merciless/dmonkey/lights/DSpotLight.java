@@ -18,9 +18,9 @@ import com.jme3.renderer.ViewPort;
 /**
  * @author Seth
  */
-public final class DSpotLight extends DLight {
+public final class DSpotLight extends DLight<SpotLight> {
 
-	public DSpotLight(Light light) {
+	public DSpotLight(SpotLight light) {
 		super(light);
 		
 		SpotLight sp = getLight();

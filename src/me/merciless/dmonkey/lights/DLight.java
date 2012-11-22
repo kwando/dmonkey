@@ -12,11 +12,11 @@ import com.jme3.scene.Geometry;
 /**
  * @author Seth
  */
-public abstract class DLight extends Geometry {
+public abstract class DLight<T extends Light> extends Geometry {
 
-	private final Light light;
+	private final T light;
 
-	public DLight(Light light) {
+	public DLight(T light) {
 		this.light = light;
 	}
 
@@ -25,13 +25,11 @@ public abstract class DLight extends Geometry {
 	public abstract void update(float tpf);
 	public abstract void clean();
 	
-	@SuppressWarnings("unchecked")
-	public <T extends Light> T getLight() {
+	public T getLight() {
 		return (T)light;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public <T extends Light> T getLight(Class<T> type) {
+	public T getLight(Class<T> type) {
 		return (T)light;
 	}
 
@@ -51,7 +49,5 @@ public abstract class DLight extends Geometry {
 		update(tpf);
 		super.updateLogicalState(tpf);
 	}
-	
-	
 
 }

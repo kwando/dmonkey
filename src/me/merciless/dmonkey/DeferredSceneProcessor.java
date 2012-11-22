@@ -10,6 +10,8 @@ import me.merciless.dmonkey.lights.DLight;
 import com.jme3.app.Application;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.Light;
+import com.jme3.light.PointLight;
+import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.post.SceneProcessor;
@@ -102,7 +104,7 @@ public class DeferredSceneProcessor implements SceneProcessor {
 					l.clean();
 		}
   }
-  
+
   public DLight addLight(Light light, boolean check) {
     DeferredSceneProcessor dsp = this;
 		if (check) {
@@ -117,14 +119,14 @@ public class DeferredSceneProcessor implements SceneProcessor {
 				ambient.addLight(light);
 				return ambient;
 			case Point: {
-      DPointLight l = new DPointLight(light);
+      DPointLight l = new DPointLight((PointLight)light);
 				l.initialize(dsp, gbuffer, assets);
 				l.addControl(new LightQualityControl(l.getMaterial(), lightVp.getCamera()));
 				dsp.lightNode.attachChild(l);
 				return l;
 			}
 			case Spot: {
-				DSpotLight l = new DSpotLight(light);
+				DSpotLight l = new DSpotLight((SpotLight)light);
 				l.initialize(dsp, gbuffer, assets);
 				dsp.lightNode.attachChild(l);
 				return l;
