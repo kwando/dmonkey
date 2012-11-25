@@ -28,6 +28,7 @@ import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
 import java.util.HashMap;
 import java.util.HashSet;
+import me.merciless.dmonkey.lights.Ambient;
 import me.merciless.dmonkey.lights.DPointLight;
 import me.merciless.dmonkey.lights.DSpotLight;
 
@@ -51,13 +52,13 @@ public class DeferredSceneProcessor implements SceneProcessor {
   private Texture2D lightTexture;
   
   private HashMap<Light, DLight>lights;
- // private final Ambient ambient;
+  private final Ambient ambient;
   
   public DeferredSceneProcessor(Application app) {
     this.assets = app.getAssetManager();
     this.lightNode = new Node("BoundingVolumes");
     this.lights = new HashMap<Light, DLight>();
-   // ambient = new Ambient();
+    ambient = new Ambient();
   }
 
   public void initialize(RenderManager rm, ViewPort vp) {
@@ -106,9 +107,9 @@ public class DeferredSceneProcessor implements SceneProcessor {
 		switch (light.getType()) {
 			case Ambient:
 			case Directional:
-				//ambient.addLight(light);
-				//return ambient;
-        return null;
+        ambient.register(this);
+        ambient.addLight(light);
+				return ambient;
 			case Point: {
       DPointLight l = new DPointLight((PointLight)light);
 				l.register(dsp);
@@ -151,6 +152,7 @@ public class DeferredSceneProcessor implements SceneProcessor {
   public void preFrame(float tpf) {
     this.tpf = tpf;
     lightNode.updateLogicalState(tpf);
+    ambient.updateLogicalState(tpf);
   }
 
   public void postQueue(RenderQueue rq) {
@@ -170,8 +172,9 @@ public class DeferredSceneProcessor implements SceneProcessor {
   public void postFrame(FrameBuffer out) {
     rm.setForcedTechnique(null);
     rm.renderViewPort(lightVp, tpf);
-    
-  //  ambient.render(rm, vp);
+
+    ambient.updateGeometricState();
+    ambient.render(rm, vp);
     
     if (debugLights) {
    	  lightNode.updateGeometricState();
