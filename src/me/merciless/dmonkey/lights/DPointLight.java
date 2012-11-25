@@ -19,8 +19,8 @@ import me.merciless.dmonkey.LightQualityControl;
  */
 public final class DPointLight extends DLight<PointLight> {
 
-	public DPointLight(PointLight light) {
-		super(light);
+	public DPointLight(PointLight light, DeferredSceneProcessor dsp) {
+		super(light, dsp);
 
 		// Better option? lol
 		setName("DPS-"+light.getType()+"-["+light.getName()+"/"+light.hashCode()+"]");

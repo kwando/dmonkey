@@ -18,13 +18,11 @@ public abstract class DLight<T extends Light> extends Geometry {
   private boolean isInitialized = false;
   private DeferredSceneProcessor dsp;
 
-	public DLight(T light) {
+	public DLight(T light, DeferredSceneProcessor dsp) {
 		this.light = light;
+    this.dsp = dsp;
 	}
   
-  public void register(DeferredSceneProcessor dsp){
-    this.dsp = dsp;
-  }
 	protected abstract void initialize(DeferredSceneProcessor dsp, GBuffer buff, AssetManager assetManager);
 	public abstract void render(RenderManager rm, ViewPort vp);
 	public abstract void update(float tpf);

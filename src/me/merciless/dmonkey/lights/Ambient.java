@@ -31,8 +31,8 @@ public final class Ambient extends DLight {
 	
 	private final ColorRGBA ambientColor = new ColorRGBA(0,0,0,0);
 	
-	public Ambient() {
-		super(null); // Nothing that needs to be keept track of
+	public Ambient(DeferredSceneProcessor dsp) {
+		super(null, dsp); // Nothing that needs to be keept track of
 
 		mesh = new Quad(1, 1);
 		mesh.setStatic();

@@ -27,7 +27,6 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
 import java.util.HashMap;
-import java.util.HashSet;
 import me.merciless.dmonkey.lights.Ambient;
 import me.merciless.dmonkey.lights.DPointLight;
 import me.merciless.dmonkey.lights.DSpotLight;
@@ -58,7 +57,7 @@ public class DeferredSceneProcessor implements SceneProcessor {
     this.assets = app.getAssetManager();
     this.lightNode = new Node("BoundingVolumes");
     this.lights = new HashMap<Light, DLight>();
-    ambient = new Ambient();
+    ambient = new Ambient(this);
   }
 
   public void initialize(RenderManager rm, ViewPort vp) {
@@ -107,19 +106,16 @@ public class DeferredSceneProcessor implements SceneProcessor {
 		switch (light.getType()) {
 			case Ambient:
 			case Directional:
-        ambient.register(this);
         ambient.addLight(light);
 				return ambient;
 			case Point: {
-      DPointLight l = new DPointLight((PointLight)light);
-				l.register(dsp);
+      DPointLight l = new DPointLight((PointLight)light, this);
         lights.put(light, l);
 				dsp.lightNode.attachChild(l);
 				return l;
 			}
 			case Spot: {
-				DSpotLight l = new DSpotLight((SpotLight)light);
-				l.register(dsp);
+				DSpotLight l = new DSpotLight((SpotLight)light, this);
         lights.put(light, l);
 				dsp.lightNode.attachChild(l);
 				return l;

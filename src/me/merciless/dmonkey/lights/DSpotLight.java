@@ -20,8 +20,8 @@ import com.jme3.renderer.ViewPort;
  */
 public final class DSpotLight extends DLight<SpotLight> {
 
-	public DSpotLight(SpotLight light) {
-		super(light);
+	public DSpotLight(SpotLight light, DeferredSceneProcessor dsp) {
+		super(light, dsp);
 		
 		SpotLight sp = getLight();
 		mesh = ConeMesh.fromRangeAndCutoff(sp.getSpotRange(), sp.getSpotOuterAngle() * FastMath.RAD_TO_DEG);
