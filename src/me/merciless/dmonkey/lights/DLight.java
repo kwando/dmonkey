@@ -29,6 +29,9 @@ public abstract class DLight<T extends Light> extends Geometry {
     this.gbuffer = buff;
     this.assetManager = assetManager;
   }
+  public void register(DeferredSceneProcessor dsp){
+    this.dsp = dsp;
+  }
 	protected abstract void initialize(DeferredSceneProcessor dsp, GBuffer buff, AssetManager assetManager);
 	public abstract void render(RenderManager rm, ViewPort vp);
 	public abstract void update(float tpf);
@@ -52,7 +55,7 @@ public abstract class DLight<T extends Light> extends Geometry {
 	@Override
 	public void updateLogicalState(float tpf) {
     if(!isInitialized){
-      initialize(dsp, gbuffer, assetManager);
+      initialize(dsp, dsp.gbuffer, dsp.assets);
       isInitialized = true;
     }
 		update(tpf);

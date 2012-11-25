@@ -29,6 +29,8 @@ import com.jme3.scene.BatchNode;
 import com.jme3.scene.Spatial;
 import com.jme3.system.AppSettings;
 import com.jme3.util.TangentBinormalGenerator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * test
@@ -40,6 +42,7 @@ public class Main extends SimpleApplication {
 	private ArrayList<Light> someLights = new ArrayList<Light>();
 	
   public static void main(String[] args) {
+    Logger.getLogger("").setLevel(Level.WARNING);
     Main app = new Main();
     AppSettings settings = new AppSettings(true);
     settings.setWidth(1280);
@@ -48,7 +51,7 @@ public class Main extends SimpleApplication {
     //settings.setDepthBits(16);
 
     app.setSettings(settings);
-    //app.setShowSettings(false);
+    app.setShowSettings(false);
     app.start();
   }
   DeferredSceneProcessor dsp;
@@ -94,7 +97,7 @@ public class Main extends SimpleApplication {
 		color.a = 10 * 8.6f;
 		pl.setColor(color);
 		pl.setRadius(5f);
-//		rootNode.addLight(pl);
+		rootNode.addLight(pl);
 //		someLights.add(pl);
       }
     }
@@ -122,6 +125,8 @@ public class Main extends SimpleApplication {
     dl.setDirection(new Vector3f(0,0,1).normalize());
     someLights.add(dl);
     rootNode.addLight(dl);
+    
+    DeferredShadingUtils.scanNode(dsp, rootNode);
     
     stateManager.attach(new ScreenshotAppState("E:/Game-Development/Workbench/dmonkey2/"));
     inputManager.addRawInputListener(new RawInputListener() {

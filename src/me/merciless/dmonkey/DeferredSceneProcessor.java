@@ -4,7 +4,6 @@
  */
 package me.merciless.dmonkey;
 
-import me.merciless.dmonkey.lights.Ambient;
 import me.merciless.dmonkey.lights.DLight;
 
 import com.jme3.app.Application;
@@ -27,6 +26,8 @@ import com.jme3.scene.shape.Quad;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
+import java.util.HashMap;
+import java.util.HashSet;
 import me.merciless.dmonkey.lights.DPointLight;
 import me.merciless.dmonkey.lights.DSpotLight;
 
@@ -41,18 +42,21 @@ public class DeferredSceneProcessor implements SceneProcessor {
   private Renderer renderer;
   private ViewPort lightVp;
   private float tpf;
-  private AssetManager assets;
+  public AssetManager assets;
   private Node lightNode;
-  private GBuffer gbuffer;
+  public GBuffer gbuffer;
   private boolean debugLights = false;
   private Geometry resolveQuad;
   private FrameBuffer lightBuffer;
   private Texture2D lightTexture;
+  
+  private HashMap<Light, DLight>lights;
  // private final Ambient ambient;
   
   public DeferredSceneProcessor(Application app) {
     this.assets = app.getAssetManager();
     this.lightNode = new Node("BoundingVolumes");
+    this.lights = new HashMap<Light, DLight>();
    // ambient = new Ambient();
   }
 
@@ -66,9 +70,6 @@ public class DeferredSceneProcessor implements SceneProcessor {
     lightVp.setClearFlags(true, false, false);
 
     reshape(vp, cam.getWidth(), cam.getHeight());
-    
-    //ambient.doInitialize(this, gbuffer, assets);
-    scanRootNode();
 
     resolveQuad = new Geometry("ResolveQuad", new Quad(1, 1));
     Material resolveMat = new Material(assets, "DMonkey/Resolve.j3md");
@@ -84,31 +85,20 @@ public class DeferredSceneProcessor implements SceneProcessor {
     resolveQuad.setQueueBucket(RenderQueue.Bucket.Opaque);
     lightNode.updateGeometricState();
   }
-
-  public void scanRootNode() {
-    // It's always the rootNode right?
-    Node rootNode = (Node) vp.getScenes().get(0);
-    DeferredShadingUtils.scanNode(this, rootNode);
-  }
   
   public void removeLight(Light light) {
-		switch (light.getType()) {
-			case Ambient:
-			case Directional:
-				//ambient.removeLight(light);
-				break;
-			default:
-				DLight l = this.getLight(light);
-	
-				if (l != null)
-					l.clean();
-		}
+		DLight dlight = lights.remove(light);
+    if(dlight != null){
+      dlight.removeFromParent();
+    }
   }
 
   public DLight addLight(Light light, boolean check) {
+    
     DeferredSceneProcessor dsp = this;
 		if (check) {
-			DLight l = getLight(light);
+			DLight l = lights.get(light);
+      
 			if (l != null)
 				return l;
 		}
@@ -120,15 +110,16 @@ public class DeferredSceneProcessor implements SceneProcessor {
 				//return ambient;
         return null;
 			case Point: {
-        System.out.println("pointlight added");
       DPointLight l = new DPointLight((PointLight)light);
-				l.doInitialize(dsp, gbuffer, assets);
+				l.register(dsp);
+        lights.put(light, l);
 				dsp.lightNode.attachChild(l);
 				return l;
 			}
 			case Spot: {
 				DSpotLight l = new DSpotLight((SpotLight)light);
-				l.doInitialize(dsp, gbuffer, assets);
+				l.register(dsp);
+        lights.put(light, l);
 				dsp.lightNode.attachChild(l);
 				return l;
 			}
@@ -140,8 +131,7 @@ public class DeferredSceneProcessor implements SceneProcessor {
 		return null;
 	}
   public DLight getLight(Light light) {
-		String id = "DPS-" + light.getType() + "-[" + light.getName() + "/" + light.hashCode() + "]";
-		return (DLight) lightNode.getChild(id);
+    return lights.get(light);
 	}
   
   public void reshape(ViewPort vp, int w, int h) {
