@@ -16,19 +16,12 @@ public abstract class DLight<T extends Light> extends Geometry {
 
 	private final T light;
   private boolean isInitialized = false;
-  private GBuffer gbuffer;
   private DeferredSceneProcessor dsp;
-  private AssetManager assetManager;
 
 	public DLight(T light) {
 		this.light = light;
 	}
-
-  public void doInitialize(DeferredSceneProcessor dsp, GBuffer buff, AssetManager assetManager){
-    this.dsp = dsp;
-    this.gbuffer = buff;
-    this.assetManager = assetManager;
-  }
+  
   public void register(DeferredSceneProcessor dsp){
     this.dsp = dsp;
   }
