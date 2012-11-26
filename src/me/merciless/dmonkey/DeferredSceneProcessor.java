@@ -37,6 +37,7 @@ import me.merciless.dmonkey.lights.DSpotLight;
  */
 public class DeferredSceneProcessor implements SceneProcessor {
 
+  private Application app;
   private ViewPort vp;
   private RenderManager rm;
   private Renderer renderer;
@@ -58,18 +59,21 @@ public class DeferredSceneProcessor implements SceneProcessor {
     this.lightNode = new Node("BoundingVolumes");
     this.lights = new HashMap<Light, DLight>();
     ambient = new Ambient(this);
+    this.app = app;
   }
 
   public void initialize(RenderManager rm, ViewPort vp) {
     this.vp = vp;
     this.rm = rm;
     this.renderer = rm.getRenderer();
+    
     Camera cam = vp.getCamera();
     lightVp = new ViewPort("Lights", cam);
     lightVp.attachScene(lightNode);
     lightVp.setClearFlags(true, false, false);
 
     reshape(vp, cam.getWidth(), cam.getHeight());
+    DeferredShadingUtils.showDebug(this, app, true);
 
     resolveQuad = new Geometry("ResolveQuad", new Quad(1, 1));
     Material resolveMat = new Material(assets, "DMonkey/Resolve.j3md");

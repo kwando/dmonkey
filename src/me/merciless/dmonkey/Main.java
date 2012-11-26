@@ -28,6 +28,13 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.scene.BatchNode;
 import com.jme3.scene.Spatial;
 import com.jme3.system.AppSettings;
+import com.jme3.terrain.geomipmap.TerrainLodControl;
+import com.jme3.terrain.geomipmap.TerrainQuad;
+import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
+import com.jme3.terrain.heightmap.AbstractHeightMap;
+import com.jme3.terrain.heightmap.ImageBasedHeightMap;
+import com.jme3.texture.Texture;
+import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.TangentBinormalGenerator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,7 +47,10 @@ import java.util.logging.Logger;
 public class Main extends SimpleApplication {
 
 	private ArrayList<Light> someLights = new ArrayList<Light>();
-	
+    private float grassScale = 64;
+    private float dirtScale = 16;
+    private float rockScale = 128;
+
   public static void main(String[] args) {
     Logger.getLogger("").setLevel(Level.WARNING);
     Main app = new Main();
@@ -65,16 +75,80 @@ public class Main extends SimpleApplication {
     fpp.addFilter(new FXAAFilter());
     viewPort.addProcessor(fpp);
 
-    flyCam.setMoveSpeed(10);
+    flyCam.setMoveSpeed(60);
 
 	sp.setColor(ColorRGBA.Red);
 	sp.setPosition(new Vector3f(0, 3.9f, 0));
-	sp.setDirection(new Vector3f(0, -1, 0).normalizeLocal());
+	sp.setDirection(new Vector3f(1, -1, 0).normalizeLocal());
 	//sp.setDirection(new Vector3f(0.0077216243f, -0.14402537f, 0.98954386f).normalizeLocal());
 	sp.setSpotOuterAngle(20f  * FastMath.DEG_TO_RAD);
 	sp.setSpotRange(15f);
 	rootNode.addLight(sp);
 
+	Material matTerrain = new Material(assetManager, "DMonkey/Terrain/Terrain.j3md");
+    matTerrain.setBoolean("useTriPlanarMapping", false);
+    matTerrain.setBoolean("WardIso", false);
+    matTerrain.setFloat("Shininess", 20);
+
+    // ALPHA map (for splat textures)
+    matTerrain.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
+
+    // GRASS texture
+    Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
+    grass.setWrap(WrapMode.Repeat);
+    matTerrain.setTexture("DiffuseMap", grass);
+    matTerrain.setFloat("DiffuseMap_0_scale", grassScale);
+
+    // DIRT texture
+    Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
+    dirt.setWrap(WrapMode.Repeat);
+    matTerrain.setTexture("DiffuseMap_1", dirt);
+    matTerrain.setFloat("DiffuseMap_1_scale", dirtScale);
+
+    // ROCK texture
+    Texture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
+    rock.setWrap(WrapMode.Repeat);
+    matTerrain.setTexture("DiffuseMap_2", rock);
+    matTerrain.setFloat("DiffuseMap_2_scale", rockScale);
+
+//    matTerrain.setFloat("DiffuseMap_0_scale", 1f / (float) (512f / grassScale));
+//    matTerrain.setFloat("DiffuseMap_1_scale", 1f / (float) (512f / dirtScale));
+//    matTerrain.setFloat("DiffuseMap_2_scale", 1f / (float) (512f / rockScale));
+//    matTerrain.setFloat("DiffuseMap_3_scale", 1f / (float) (512f / rockScale));
+//    matTerrain.setFloat("DiffuseMap_4_scale", 1f / (float) (512f / rockScale));
+
+  Texture normalMap0 = assetManager.loadTexture("Textures/Terrain/splat/grass_normal.jpg");
+  normalMap0.setWrap(WrapMode.Repeat);
+  Texture normalMap1 = assetManager.loadTexture("Textures/Terrain/splat/dirt_normal.png");
+  normalMap1.setWrap(WrapMode.Repeat);
+  Texture normalMap2 = assetManager.loadTexture("Textures/Terrain/splat/road_normal.png");
+  normalMap2.setWrap(WrapMode.Repeat);
+  matTerrain.setTexture("NormalMap", normalMap0);
+  matTerrain.setTexture("NormalMap_1", normalMap1);
+  matTerrain.setTexture("NormalMap_2", normalMap2);
+
+    // HEIGHTMAP image (for the terrain heightmap)
+    Texture heightMapImage = assetManager.loadTexture("Textures/Terrain/splat/mountains512.png");
+    AbstractHeightMap heightmap = null;
+    try {
+        heightmap = new ImageBasedHeightMap(heightMapImage.getImage(), 1.5f);
+        heightmap.load();
+        heightmap.smooth(0.9f, 1);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    
+    // CREATE THE TERRAIN
+    TerrainQuad terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
+    TerrainLodControl control = new TerrainLodControl(terrain, getCamera());
+    control.setLodCalculator( new DistanceLodCalculator(65, 2.7f) ); // patch size, and a multiplier
+    terrain.addControl(control);
+    terrain.setMaterial(matTerrain);
+    terrain.setLocalTranslation(0, -100, 0);
+    terrain.setLocalScale(2.5f, 0.5f, 2.5f);
+    rootNode.attachChild(terrain);
+    
     Material mat = assetManager.loadMaterial("DMonkey/TestMaterial.j3m");
     Spatial geom = assetManager.loadModel("Models/brokenCube.j3o");
     geom.setMaterial(mat);
@@ -98,7 +172,7 @@ public class Main extends SimpleApplication {
 		pl.setColor(color);
 		pl.setRadius(5f);
 		rootNode.addLight(pl);
-//		someLights.add(pl);
+		someLights.add(pl);
       }
     }
 
@@ -109,22 +183,22 @@ public class Main extends SimpleApplication {
     rootNode.addLight(al);
     
     DirectionalLight dl = new DirectionalLight();
-    dl.setColor(ColorRGBA.Red);
-    dl.setDirection(new Vector3f(1,-1,0).normalize());
+    dl.setColor(ColorRGBA.LightGray.addLocal(ColorRGBA.White));
+    dl.setDirection(new Vector3f(0, -1, 0).normalizeLocal());
     someLights.add(dl);
     rootNode.addLight(dl);
     
     dl = new DirectionalLight();
     dl.setColor(ColorRGBA.Green);
     dl.setDirection(new Vector3f(1,0,0).normalize());
-    someLights.add(dl);
-    rootNode.addLight(dl);
+    //someLights.add(dl);
+    //rootNode.addLight(dl);
     
     dl = new DirectionalLight();
     dl.setColor(ColorRGBA.Blue);
     dl.setDirection(new Vector3f(0,0,1).normalize());
-    someLights.add(dl);
-    rootNode.addLight(dl);
+    //someLights.add(dl);
+    //rootNode.addLight(dl);
     
     DeferredShadingUtils.scanNode(dsp, rootNode);
     
