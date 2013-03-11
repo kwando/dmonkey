@@ -39,8 +39,8 @@ import java.util.logging.Logger;
  */
 public class Main extends SimpleApplication {
 
-	private ArrayList<Light> someLights = new ArrayList<Light>();
-	
+  private ArrayList<Light> someLights = new ArrayList<Light>();
+
   public static void main(String[] args) {
     Logger.getLogger("").setLevel(Level.WARNING);
     Main app = new Main();
@@ -51,53 +51,54 @@ public class Main extends SimpleApplication {
     //settings.setDepthBits(16);
 
     app.setSettings(settings);
-    app.setShowSettings(false);
+    //app.setShowSettings(false);
     app.start();
   }
   DeferredSceneProcessor dsp;
   SpotLight sp = new SpotLight();
+
   @Override
   public void simpleInitApp() {
     viewPort.addProcessor(dsp = new DeferredSceneProcessor(this));
     FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
-    fpp.addFilter(new BloomFilter(BloomFilter.GlowMode.Scene));
+    fpp.addFilter(new com.jme3.post.filters.BloomFilter(com.jme3.post.filters.BloomFilter.GlowMode.Scene));
     fpp.addFilter(new FXAAFilter());
     fpp.addFilter(new FXAAFilter());
     viewPort.addProcessor(fpp);
 
     flyCam.setMoveSpeed(10);
 
-	sp.setColor(ColorRGBA.Red);
-	sp.setPosition(new Vector3f(0, 3.9f, 0));
-	sp.setDirection(new Vector3f(0, -1, 0).normalizeLocal());
-	//sp.setDirection(new Vector3f(0.0077216243f, -0.14402537f, 0.98954386f).normalizeLocal());
-	sp.setSpotOuterAngle(20f  * FastMath.DEG_TO_RAD);
-	sp.setSpotRange(15f);
-	rootNode.addLight(sp);
+    sp.setColor(ColorRGBA.Red);
+    sp.setPosition(new Vector3f(0, 3.9f, 0));
+    sp.setDirection(new Vector3f(0, -1, 0).normalizeLocal());
+    //sp.setDirection(new Vector3f(0.0077216243f, -0.14402537f, 0.98954386f).normalizeLocal());
+    sp.setSpotOuterAngle(20f * FastMath.DEG_TO_RAD);
+    sp.setSpotRange(15f);
+    rootNode.addLight(sp);
 
     Material mat = assetManager.loadMaterial("DMonkey/TestMaterial.j3m");
     Spatial geom = assetManager.loadModel("Models/brokenCube.j3o");
     geom.setMaterial(mat);
     TangentBinormalGenerator.generate(geom);
     BatchNode cubes = new BatchNode();
-    int side = 20;
-    float moveScale = 1.5f;
+    int side = 10;
+    float moveScale = 1.9f;
 
     for (int i = 0; i < side; i++) {
       for (int j = 0; j < side; j++) {
-        geom.setLocalTranslation((i - side / 2) * moveScale, FastMath.nextRandomFloat(), (j - side / 2) * moveScale);
-		cubes.attachChild(geom);
+        geom.setLocalTranslation((i - side / 2) * moveScale, FastMath.nextRandomFloat() * 10, (j - side / 2) * moveScale);
+        cubes.attachChild(geom);
         geom = geom.clone();
 
         PointLight pl = new PointLight();
 
-		pl.setPosition(geom.getLocalTranslation());
+        pl.setPosition(geom.getLocalTranslation());
 
-		ColorRGBA color = ColorRGBA.randomColor();
-		color.a = 10 * 8.6f;
-		pl.setColor(color);
-		pl.setRadius(5f);
-		rootNode.addLight(pl);
+        ColorRGBA color = ColorRGBA.randomColor();
+        color.a = 10 * 8.6f;
+        pl.setColor(color);
+        pl.setRadius(5f);
+        rootNode.addLight(pl);
 //		someLights.add(pl);
       }
     }
@@ -107,109 +108,115 @@ public class Main extends SimpleApplication {
     AmbientLight al = new AmbientLight();
     al.setColor(ColorRGBA.DarkGray);
     rootNode.addLight(al);
-    
+
     DirectionalLight dl = new DirectionalLight();
     dl.setColor(ColorRGBA.Red);
-    dl.setDirection(new Vector3f(1,-1,0).normalize());
+    dl.setDirection(new Vector3f(1, -1, 0).normalize());
     someLights.add(dl);
     rootNode.addLight(dl);
-    
+
     dl = new DirectionalLight();
     dl.setColor(ColorRGBA.Green);
-    dl.setDirection(new Vector3f(1,0,0).normalize());
+    dl.setDirection(new Vector3f(1, 0, 0).normalize());
     someLights.add(dl);
     rootNode.addLight(dl);
-    
+
     dl = new DirectionalLight();
     dl.setColor(ColorRGBA.Blue);
-    dl.setDirection(new Vector3f(0,0,1).normalize());
+    dl.setDirection(new Vector3f(0, 0, 1).normalize());
     someLights.add(dl);
     rootNode.addLight(dl);
-    
+
     DeferredShadingUtils.scanNode(dsp, rootNode);
-    
+
     stateManager.attach(new ScreenshotAppState("E:/Game-Development/Workbench/dmonkey2/"));
     inputManager.addRawInputListener(new RawInputListener() {
-		
-		@Override
-		public void onTouchEvent(TouchEvent evt) { }
-		
-		@Override
-		public void onMouseMotionEvent(MouseMotionEvent evt) { }
-		
-		@Override
-		public void onMouseButtonEvent(MouseButtonEvent evt) { }
-		
-		@Override
-		public void onKeyEvent(KeyInputEvent evt) {
-			boolean isPressed = evt.isPressed();
-			
-			if(!isPressed) {
-				switch (evt.getKeyCode()) {
-					case KeyInput.KEY_1:
-						if(someLights.isEmpty()) {
-							System.out.println("No more lights to remove");
-							return;
-						}
-						Light light = someLights.remove(someLights.size() - 1);
+      @Override
+      public void onTouchEvent(TouchEvent evt) {
+      }
 
-						if(light != null)
-							dsp.removeLight(light);
-						break;
-	
-					case KeyInput.KEY_2: {
-						Vector3f pos = sp.getPosition();
-						pos.y -= 0.1f;
-						sp.setPosition(pos);
-						break;
-					}
-					case KeyInput.KEY_3: {
-						Vector3f pos = sp.getPosition();
-						pos.y += 0.1f;
-						sp.setPosition(pos);
-						break;
-					}
-					case KeyInput.KEY_4: {
-						sp.setPosition(cam.getLocation());
-						sp.setDirection(cam.getDirection());
-						break;
-					}
-					default:
-						break;
-				}
-			}
-		}
-		
-		@Override
-		public void onJoyButtonEvent(JoyButtonEvent evt) { }
-		
-		@Override
-		public void onJoyAxisEvent(JoyAxisEvent evt) { }
-		
-		@Override
-		public void endInput() { }
-		
-		@Override
-		public void beginInput() { }
-	});
+      @Override
+      public void onMouseMotionEvent(MouseMotionEvent evt) {
+      }
+
+      @Override
+      public void onMouseButtonEvent(MouseButtonEvent evt) {
+      }
+
+      @Override
+      public void onKeyEvent(KeyInputEvent evt) {
+        boolean isPressed = evt.isPressed();
+
+        if (!isPressed) {
+          switch (evt.getKeyCode()) {
+            case KeyInput.KEY_1:
+              if (someLights.isEmpty()) {
+                System.out.println("No more lights to remove");
+                return;
+              }
+              Light light = someLights.remove(someLights.size() - 1);
+
+              if (light != null) {
+                dsp.removeLight(light);
+              }
+              break;
+
+            case KeyInput.KEY_2: {
+              Vector3f pos = sp.getPosition();
+              pos.y -= 0.1f;
+              sp.setPosition(pos);
+              break;
+            }
+            case KeyInput.KEY_3: {
+              Vector3f pos = sp.getPosition();
+              pos.y += 0.1f;
+              sp.setPosition(pos);
+              break;
+            }
+            case KeyInput.KEY_4: {
+              sp.setPosition(cam.getLocation());
+              sp.setDirection(cam.getDirection());
+              break;
+            }
+            default:
+              break;
+          }
+        }
+      }
+
+      @Override
+      public void onJoyButtonEvent(JoyButtonEvent evt) {
+      }
+
+      @Override
+      public void onJoyAxisEvent(JoyAxisEvent evt) {
+      }
+
+      @Override
+      public void endInput() {
+      }
+
+      @Override
+      public void beginInput() {
+      }
+    });
   }
-
   private float time;
   private float period = 10;
 
   @Override
   public void simpleUpdate(float tpf) {
-	    time += tpf;
-	    if (time > period) {
-	      time -= period;
-	    }
-	    
-	    for (Light slight : someLights) {
-	    	if(slight instanceof PointLight) {
-		    	Vector3f origin = ((PointLight) slight).getPosition();
-		    	((PointLight) slight).setPosition(new Vector3f(origin.x, FastMath.sin(time / period * FastMath.TWO_PI) * 1 + 1.2f, origin.z));
-	    	}
-		}
+    time += tpf;
+    if (time > period) {
+      time -= period;
+    }
+
+    for (Light slight : someLights) {
+      if (slight instanceof PointLight) {
+        Vector3f origin = ((PointLight) slight).getPosition();
+        ((PointLight) slight).setPosition(new Vector3f(origin.x, FastMath.sin(time / period * FastMath.TWO_PI) * 1 + 1.2f, origin.z));
+      }
+    }
   }
 
   @Override
