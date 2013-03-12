@@ -79,7 +79,6 @@ public class Main extends SimpleApplication {
     Material mat = assetManager.loadMaterial("DMonkey/TestMaterial.j3m");
     Spatial geom = assetManager.loadModel("Models/brokenCube.j3o");
     geom.setMaterial(mat);
-    TangentBinormalGenerator.generate(geom);
     BatchNode cubes = new BatchNode();
     int side = 10;
     float moveScale = 1.9f;
