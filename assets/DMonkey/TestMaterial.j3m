@@ -1,9 +1,9 @@
 Material My Material : DMonkey/GBuffer.j3md {
      MaterialParameters {
-        DiffuseTex : DMonkey/Textures/example2_diffuse.jpg
-        NormalTex : DMonkey/Textures/example2_normaldeep.jpg
+        DiffuseTex : Textures/Cartoon/SoilCracked0146_2_S.jpg
         SpecularAmount : 1.0
         DiffuseColor : 1.0 1.0 1.0 1.0
+        NormalTex : Textures/Cartoon/SoilCracked0146_2_S_NRM.png
      }
     AdditionalRenderState {
     }
