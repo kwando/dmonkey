@@ -67,7 +67,7 @@ public class DeferredSceneProcessor implements SceneProcessor {
     Camera cam = vp.getCamera();
     lightVp = new ViewPort("Lights", cam);
     lightVp.attachScene(lightNode);
-    lightVp.setClearFlags(true, false, false);
+    //lightVp.setClearFlags(true, false, false);
 
     reshape(vp, cam.getWidth(), cam.getHeight());
 
@@ -160,9 +160,12 @@ public class DeferredSceneProcessor implements SceneProcessor {
     rm.getRenderer().setFrameBuffer(gbuffer.fbo);
     renderer.setBackgroundColor(ColorRGBA.BlackNoAlpha);
     renderer.clearBuffers(true, true, true);
-    rm.renderViewPortQueues(vp, true);
+    rm.renderViewPortQueues(vp, false);
     rm.getRenderer().setFrameBuffer(fb);
     rm.setForcedTechnique("ForwardPass");
+    renderer.setFrameBuffer(lightBuffer);
+    renderer.setBackgroundColor(ColorRGBA.BlackNoAlpha);
+    renderer.clearBuffers(true, false, false);
   }
 
   public void postFrame(FrameBuffer out) {

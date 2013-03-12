@@ -64,7 +64,7 @@ public class Main extends SimpleApplication {
     fpp.addFilter(new com.jme3.post.filters.BloomFilter(com.jme3.post.filters.BloomFilter.GlowMode.Scene));
     fpp.addFilter(new FXAAFilter());
     fpp.addFilter(new FXAAFilter());
-    viewPort.addProcessor(fpp);
+    //viewPort.addProcessor(fpp);
 
     flyCam.setMoveSpeed(10);
 
