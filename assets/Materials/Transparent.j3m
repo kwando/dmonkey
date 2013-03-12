@@ -1,6 +1,6 @@
 Material My Material : MatDefs/Lighting.j3md {
      MaterialParameters {
-        Diffuse : 0.8 1.0 1.0 0.85
+        Diffuse : 1.2 1.2 1.2 0.85
         UseMaterialColors : true
         Specular : 1.0 1.0 1.0 1.0
         Shininess : 4.4
@@ -17,6 +17,7 @@ Material My Material : MatDefs/Lighting.j3md {
         UseAlpha : false
         HighQuality : false
         VTangent : false
+        ParallaxMap : Textures/Cartoon/SoilCracked0146_2_S_DISP.png
      }
     AdditionalRenderState {
       Blend AlphaAdditive

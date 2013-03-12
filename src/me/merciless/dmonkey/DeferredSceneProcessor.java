@@ -52,6 +52,7 @@ public class DeferredSceneProcessor implements SceneProcessor {
   
   private HashMap<Light, DLight>lights;
   private final Ambient ambient;
+  private FrameBuffer outputBuffer;
   
   public DeferredSceneProcessor(Application app) {
     this.assets = app.getAssetManager();
@@ -154,14 +155,12 @@ public class DeferredSceneProcessor implements SceneProcessor {
   public void postQueue(RenderQueue rq) {
     lightNode.updateGeometricState();
 
-    FrameBuffer fb = vp.getOutputFrameBuffer();
     rm.setForcedTechnique("GBuffer");
 
     rm.getRenderer().setFrameBuffer(gbuffer.fbo);
     renderer.setBackgroundColor(ColorRGBA.BlackNoAlpha);
     renderer.clearBuffers(true, true, true);
     rm.renderViewPortQueues(vp, false);
-    rm.getRenderer().setFrameBuffer(fb);
     rm.setForcedTechnique("ForwardPass");
     renderer.setFrameBuffer(lightBuffer);
     renderer.setBackgroundColor(ColorRGBA.BlackNoAlpha);

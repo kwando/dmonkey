@@ -44,20 +44,20 @@ public class TestTransparent extends SimpleApplication{
     fpp.addFilter(new com.jme3.post.filters.BloomFilter(com.jme3.post.filters.BloomFilter.GlowMode.Scene));
     fpp.addFilter(new FXAAFilter());
     fpp.addFilter(new FXAAFilter());
-    //viewPort.addProcessor(fpp);
+    viewPort.addProcessor(fpp);
     
     Spatial spat = assetManager.loadModel("Models/brokenCube.j3o");
     rootNode.attachChild(spat);
     
     spat = assetManager.loadModel("Models/transparent.j3o");
     spat.move(.5f, .5f, .5f);
-    spat.setQueueBucket(Bucket.Translucent);
+    spat.setQueueBucket(Bucket.Transparent);
     ((Node)spat).depthFirstTraversal(new SceneGraphVisitorAdapter(){
 
       @Override
       public void visit(Geometry geom) {
         super.visit(geom);
-        geom.setQueueBucket(Bucket.Translucent);
+        geom.setQueueBucket(Bucket.Transparent);
       }
     });
     rootNode.attachChild(spat);
