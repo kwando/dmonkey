@@ -3,32 +3,22 @@ package me.merciless.dmonkey;
 import java.util.ArrayList;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.app.state.ScreenshotAppState;
-import com.jme3.input.KeyInput;
-import com.jme3.input.RawInputListener;
-import com.jme3.input.event.JoyAxisEvent;
-import com.jme3.input.event.JoyButtonEvent;
-import com.jme3.input.event.KeyInputEvent;
-import com.jme3.input.event.MouseButtonEvent;
-import com.jme3.input.event.MouseMotionEvent;
-import com.jme3.input.event.TouchEvent;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
-import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.FXAAFilter;
-import com.jme3.renderer.RenderManager;
 import com.jme3.scene.BatchNode;
 import com.jme3.scene.Spatial;
 import com.jme3.system.AppSettings;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import me.merciless.dmonkey.test.CubesTestScene;
 
 /**
  * test
@@ -41,15 +31,14 @@ public class Main extends SimpleApplication {
 
   public static void main(String[] args) {
     Logger.getLogger("").setLevel(Level.WARNING);
-    Main app = new Main();
+    SimpleApplication app = new CubesTestScene();
     AppSettings settings = new AppSettings(true);
-    settings.setWidth(1280);
-    settings.setHeight(720);
+    settings.setResolution(1280, 720);
     settings.setVSync(true);
     //settings.setDepthBits(16);
 
     app.setSettings(settings);
-    //app.setShowSettings(false);
+    app.setShowSettings(false);
     app.start();
   }
   DeferredSceneProcessor dsp;
@@ -69,6 +58,7 @@ public class Main extends SimpleApplication {
     Spatial geom = assetManager.loadModel("Models/brokenCube.j3o");
     geom.setMaterial(mat);
     BatchNode cubes = new BatchNode();
+    
     int side = 10;
     float moveScale = 1.9f;
 

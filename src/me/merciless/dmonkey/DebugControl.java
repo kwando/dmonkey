@@ -11,6 +11,8 @@ import com.jme3.input.event.KeyInputEvent;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
 import com.jme3.input.event.TouchEvent;
+import java.util.logging.Logger;
+
 
 /**
  *
@@ -47,6 +49,7 @@ public class DebugControl extends AbstractAppState {
           switch (evt.getKeyCode()) {
             case KeyInput.KEY_I: {
               dsp.toggleDebug();
+              System.out.println("toggle debuglights");
               return;
             }
           }
