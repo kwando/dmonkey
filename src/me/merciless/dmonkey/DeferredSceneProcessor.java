@@ -16,6 +16,8 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.queue.GeometryList;
+import com.jme3.renderer.queue.NullComparator;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -39,8 +41,6 @@ public class DeferredSceneProcessor implements SceneProcessor {
   private ViewPort vp;
   private RenderManager rm;
   private Renderer renderer;
-  private ViewPort lightVp;
-  private float tpf;
   public AssetManager assets;
   private Node lightNode;
   public GBuffer gbuffer;
@@ -50,12 +50,14 @@ public class DeferredSceneProcessor implements SceneProcessor {
   private Texture2D lightTexture;
   private HashMap<Light, DLight> lights;
   private final Ambient ambient;
-  private FrameBuffer outputBuffer;
+  
+  private GeometryList lightGeometries;
 
   public DeferredSceneProcessor(Application app) {
     this.assets = app.getAssetManager();
     this.lightNode = new Node("BoundingVolumes");
     this.lights = new HashMap<Light, DLight>();
+    this.lightGeometries = new GeometryList(new NullComparator());
     ambient = new Ambient(this);
   }
 
@@ -64,9 +66,6 @@ public class DeferredSceneProcessor implements SceneProcessor {
     this.rm = rm;
     this.renderer = rm.getRenderer();
     Camera cam = vp.getCamera();
-    lightVp = new ViewPort("Lights", cam);
-    lightVp.attachScene(lightNode);
-    //lightVp.setClearFlags(true, false, false);
 
     reshape(vp, cam.getWidth(), cam.getHeight());
 
@@ -111,7 +110,8 @@ public class DeferredSceneProcessor implements SceneProcessor {
       case Point: {
         DPointLight l = new DPointLight((PointLight) light, this);
         lights.put(light, l);
-        dsp.lightNode.attachChild(l);
+        lightNode.attachChild(l);
+        lightGeometries.add(l);
         return l;
       }
       case Spot: {
@@ -138,8 +138,6 @@ public class DeferredSceneProcessor implements SceneProcessor {
     lightTexture = new Texture2D(w, h, Image.Format.RGBA8);
     lightBuffer.setColorTexture(lightTexture);
     lightBuffer.setDepthTexture(gbuffer.Zbuffer);
-    lightVp.setOutputFrameBuffer(lightBuffer);
-    lightVp.setBackgroundColor(ColorRGBA.BlackNoAlpha);
   }
 
   public boolean isInitialized() {
@@ -147,7 +145,6 @@ public class DeferredSceneProcessor implements SceneProcessor {
   }
 
   public void preFrame(float tpf) {
-    this.tpf = tpf;
     lightNode.updateLogicalState(tpf);
     ambient.updateLogicalState(tpf);
   }
@@ -169,7 +166,11 @@ public class DeferredSceneProcessor implements SceneProcessor {
 
   public void postFrame(FrameBuffer out) {
     rm.setForcedTechnique(null);
-    rm.renderViewPort(lightVp, tpf);
+    for(int i = 0; i < lightGeometries.size(); i++){
+      lightGeometries.get(i).runControlRender(rm, vp);
+    }
+    rm.renderGeometryList(lightGeometries);
+            
 
     ambient.updateGeometricState();
     ambient.render(rm, vp);
@@ -177,7 +178,7 @@ public class DeferredSceneProcessor implements SceneProcessor {
     if (debugLights) {
       lightNode.updateGeometricState();
       rm.setForcedMaterial(assets.loadMaterial("DMonkey/DebugMaterial.j3m"));
-      rm.renderViewPortRaw(lightVp);
+      rm.renderGeometryList(lightGeometries);
       rm.setForcedMaterial(null);
     }
     renderer.setFrameBuffer(out);
@@ -189,7 +190,7 @@ public class DeferredSceneProcessor implements SceneProcessor {
   }
 
   public Camera getCamera() {
-    return lightVp.getCamera();
+    return vp.getCamera();
   }
 
   public void toggleDebug() {
