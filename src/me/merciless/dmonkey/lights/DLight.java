@@ -1,13 +1,12 @@
 package me.merciless.dmonkey.lights;
 
-import me.merciless.dmonkey.DeferredSceneProcessor;
-import me.merciless.dmonkey.GBuffer;
-
 import com.jme3.asset.AssetManager;
 import com.jme3.light.Light;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
+import me.merciless.dmonkey.DeferredSceneProcessor;
+import me.merciless.dmonkey.GBuffer;
 
 /**
  * @author Seth

@@ -49,11 +49,10 @@ public class DeferredSceneProcessor implements SceneProcessor {
   private Geometry resolveQuad;
   private FrameBuffer lightBuffer;
   private Texture2D lightTexture;
-  
-  private HashMap<Light, DLight>lights;
+  private HashMap<Light, DLight> lights;
   private final Ambient ambient;
   private FrameBuffer outputBuffer;
-  
+
   public DeferredSceneProcessor(Application app) {
     this.assets = app.getAssetManager();
     this.lightNode = new Node("BoundingVolumes");
@@ -86,52 +85,54 @@ public class DeferredSceneProcessor implements SceneProcessor {
     resolveQuad.setQueueBucket(RenderQueue.Bucket.Opaque);
     lightNode.updateGeometricState();
   }
-  
+
   public void removeLight(Light light) {
-		DLight dlight = lights.remove(light);
-    if(dlight != null){
+    DLight dlight = lights.remove(light);
+    if (dlight != null) {
       dlight.removeFromParent();
     }
   }
 
   public DLight addLight(Light light, boolean check) {
-    
+
     DeferredSceneProcessor dsp = this;
-		if (check) {
-			DLight l = lights.get(light);
-      
-			if (l != null)
-				return l;
-		}
+    if (check) {
+      DLight l = lights.get(light);
 
-		switch (light.getType()) {
-			case Ambient:
-			case Directional:
+      if (l != null) {
+        return l;
+      }
+    }
+
+    switch (light.getType()) {
+      case Ambient:
+      case Directional:
         ambient.addLight(light);
-				return ambient;
-			case Point: {
-      DPointLight l = new DPointLight((PointLight)light, this);
+        return ambient;
+      case Point: {
+        DPointLight l = new DPointLight((PointLight) light, this);
         lights.put(light, l);
-				dsp.lightNode.attachChild(l);
-				return l;
-			}
-			case Spot: {
-				DSpotLight l = new DSpotLight((SpotLight)light, this);
+        dsp.lightNode.attachChild(l);
+        return l;
+      }
+      case Spot: {
+        DSpotLight l = new DSpotLight((SpotLight) light, this);
         lights.put(light, l);
-				dsp.lightNode.attachChild(l);
-				return l;
-			}
-			default:
-				System.out.println("Unsuported light type: " + light.getType() + " - " + light.getName());
-				break;
-		}
+        dsp.lightNode.attachChild(l);
+        return l;
+      }
+      default:
+        System.out.println("Unsuported light type: " + light.getType() + " - " + light.getName());
+        break;
+    }
 
-		return null;
-	}
+    return null;
+  }
+
   public DLight getLight(Light light) {
     return lights.get(light);
-	}
-  
+  }
+
   public void reshape(ViewPort vp, int w, int h) {
     gbuffer = new GBuffer(w, h);
     lightBuffer = new FrameBuffer(w, h, 1);
@@ -173,9 +174,9 @@ public class DeferredSceneProcessor implements SceneProcessor {
 
     ambient.updateGeometricState();
     ambient.render(rm, vp);
-    
+
     if (debugLights) {
-   	  lightNode.updateGeometricState();
+      lightNode.updateGeometricState();
       rm.setForcedMaterial(assets.loadMaterial("DMonkey/DebugMaterial.j3m"));
       rm.renderViewPortRaw(lightVp);
       rm.setForcedMaterial(null);
@@ -190,5 +191,9 @@ public class DeferredSceneProcessor implements SceneProcessor {
 
   public Camera getCamera() {
     return lightVp.getCamera();
+  }
+
+  public void toggleDebug() {
+    debugLights = !debugLights;
   }
 }
