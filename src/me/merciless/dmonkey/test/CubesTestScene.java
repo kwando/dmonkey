@@ -28,13 +28,23 @@ public class CubesTestScene extends SimpleApplication {
     dsp = new DeferredSceneProcessor(this);
     viewPort.addProcessor(dsp);
 
+    
     PointLight pl = new PointLight();
     pl.setPosition(new Vector3f(0, 3, 0));
-    ColorRGBA color = ColorRGBA.randomColor();
+    ColorRGBA color = ColorRGBA.Orange.clone();
     color.a = 1000;
     pl.setColor(color);
     pl.setRadius(12f);
-    dsp.addLight(pl, paused);
+    rootNode.addLight(pl);
+    
+    
+    pl = new PointLight();
+    pl.setPosition(new Vector3f(5, 1, 0));
+    color = ColorRGBA.Yellow.clone();
+    color.a = 1000;
+    pl.setColor(color);
+    pl.setRadius(12f);
+    rootNode.addLight(pl);
 
     Material mat = assetManager.loadMaterial("DMonkey/TestMaterial.j3m");
     final Spatial model = assetManager.loadModel("Models/brokenCube.j3o");
