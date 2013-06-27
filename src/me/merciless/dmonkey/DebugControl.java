@@ -49,7 +49,6 @@ public class DebugControl extends AbstractAppState {
           switch (evt.getKeyCode()) {
             case KeyInput.KEY_I: {
               dsp.toggleDebug();
-              System.out.println("toggle debuglights");
               return;
             }
           }
