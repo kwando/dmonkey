@@ -4,8 +4,6 @@
  */
 package me.merciless.dmonkey;
 
-import me.merciless.dmonkey.lights.DLight;
-
 import com.jme3.app.Application;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.Light;
@@ -28,6 +26,7 @@ import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
 import java.util.HashMap;
 import me.merciless.dmonkey.lights.Ambient;
+import me.merciless.dmonkey.lights.DLight;
 import me.merciless.dmonkey.lights.DPointLight;
 import me.merciless.dmonkey.lights.DSpotLight;
 
