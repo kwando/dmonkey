@@ -6,5 +6,7 @@ Material My Material : DMonkey/GBuffer.j3md {
         NormalTex : Textures/Cartoon/SoilCracked0146_2_S_NRM.png
      }
     AdditionalRenderState {
+      Wireframe Off
+      FaceCull Back
     }
 }
