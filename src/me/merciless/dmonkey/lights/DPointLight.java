@@ -49,7 +49,7 @@ public final class DPointLight extends DLight<PointLight> {
     Matrix4f viewMatrix = vp.getCamera().getViewMatrix();
     material.setVector3("LightPosition", viewMatrix.mult(light.getPosition()));
     material.setColor("LightColor", light.getColor());
-    material.setFloat("LightRadius", 1f / light.getRadius());
+    material.setFloat("LightRadius", light.getRadius());
     material.setFloat("LightIntensity", 10f); // unused
   }
 
@@ -60,7 +60,7 @@ public final class DPointLight extends DLight<PointLight> {
     setLocalTranslation(light.getPosition());
 
     // TODO, calculate the real range needed..
-    setLocalScale(light.getRadius());
+    setLocalScale(light.getRadius()*1.1f);
   }
 
   @Override
