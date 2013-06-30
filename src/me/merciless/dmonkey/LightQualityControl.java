@@ -33,17 +33,18 @@ public class LightQualityControl extends AbstractControl {
   protected void controlUpdate(float tpf) {
     Vector3f pos = this.spatial.getWorldTranslation();
     float d = cam.getLocation().distance(pos);
-    float lightRadius = spatial.getLocalScale().x / 2f;
+    float lightRadius = spatial.getLocalScale().x;
+    material.setBoolean("specular", true);
     if (inside && d > lightRadius + cam.getFrustumNear()) {
       inside = false;
       material.getAdditionalRenderState().setDepthTest(true);
       material.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Back);
-      material.setBoolean("specular", false);
+      //material.setBoolean("specular", false);
       return;
     }
     if (!inside && d < lightRadius + cam.getFrustumNear()) {
       inside = true;
-      material.setBoolean("specular", true);
+      //material.setBoolean("specular", true);
       material.getAdditionalRenderState().setDepthTest(false);
       material.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Front);
       return;

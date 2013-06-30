@@ -23,7 +23,7 @@ public final class DPointLight extends DLight<PointLight> {
     // Better option? lol
     setName("DPS-" + light.getType() + "-[" + light.getName() + "/" + light.hashCode() + "]");
 
-    mesh = new Sphere(8, 12, 0.5f);
+    mesh = new Sphere(8, 12, 1f);
     mesh.setStatic();
     setBoundRefresh();
   }
@@ -60,7 +60,7 @@ public final class DPointLight extends DLight<PointLight> {
     setLocalTranslation(light.getPosition());
 
     // TODO, calculate the real range needed..
-    setLocalScale(light.getRadius()*1.1f);
+    setLocalScale(light.getRadius());
   }
 
   @Override

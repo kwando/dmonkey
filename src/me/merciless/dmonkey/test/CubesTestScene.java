@@ -40,7 +40,7 @@ public class CubesTestScene extends SimpleApplication {
     pl.setPosition(new Vector3f(0, 3, 0));
     ColorRGBA color = ColorRGBA.Cyan.clone();
     pl.setColor(color);
-    pl.setRadius(12f);
+    pl.setRadius(5f);
     rootNode.addLight(pl);
 
 
@@ -48,7 +48,7 @@ public class CubesTestScene extends SimpleApplication {
     pl.setPosition(new Vector3f(5, 1, 0));
     color = ColorRGBA.Yellow.clone();
     pl.setColor(color);
-    pl.setRadius(12f);
+    pl.setRadius(5);
     rootNode.addLight(pl);
 
     Material mat = assetManager.loadMaterial("DMonkey/TestMaterial.j3m");
@@ -65,7 +65,7 @@ public class CubesTestScene extends SimpleApplication {
     }
 
     AmbientLight al = new AmbientLight();
-    al.setColor(ColorRGBA.Cyan.mult(.05f));
+    al.setColor(ColorRGBA.Cyan.mult(.15f));
     rootNode.addLight(al);
 
     stateManager.attach(new DebugControl(dsp));

@@ -31,10 +31,10 @@ void main() {
 	vec4 color = light.color * ComputeLighting(light);
 
 	float Dist = length(LightVector);
-    float fallof = quad_fallof(m_LightRadius*0.5,Dist, 1.0);
+    float fallof = quad_fallof(m_LightRadius,Dist, 1.0);
     fallof *= 2.0;
 
-    fallof *= clamp((m_LightRadius*0.5-Dist)/(m_LightRadius*0.5), 0.0, 1.0);
+    fallof *= clamp((m_LightRadius-Dist)/(m_LightRadius), 0.0, 1.0);
     gl_FragColor = color * fallof;
 
     // GammaCorrect textures
