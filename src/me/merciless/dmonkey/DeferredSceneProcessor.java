@@ -52,12 +52,14 @@ public class DeferredSceneProcessor implements SceneProcessor {
   private final Ambient ambient;
   
   private GeometryList lightGeometries;
+  private GeometryList renderedLightGeometries;
 
   public DeferredSceneProcessor(Application app) {
     this.assets = app.getAssetManager();
     this.lightNode = new Node("BoundingVolumes");
     this.lights = new HashMap<Light, DLight>();
     this.lightGeometries = new GeometryList(new NullComparator());
+    this.renderedLightGeometries = new GeometryList(new NullComparator());
     ambient = new Ambient(this);
   }
 
@@ -166,10 +168,17 @@ public class DeferredSceneProcessor implements SceneProcessor {
 
   public void postFrame(FrameBuffer out) {
     rm.setForcedTechnique(null);
+    
+    renderedLightGeometries.clear();
     for(int i = 0; i < lightGeometries.size(); i++){
-      lightGeometries.get(i).runControlRender(rm, vp);
+      vp.getCamera().setPlaneState(0);
+      Geometry lightGeom = lightGeometries.get(i);
+      if(lightGeom.checkCulling(vp.getCamera())){
+        renderedLightGeometries.add(lightGeom);
+        lightGeom.runControlRender(rm, vp);
+      }
     }
-    rm.renderGeometryList(lightGeometries);
+    rm.renderGeometryList(renderedLightGeometries);
             
 
     ambient.updateGeometricState();
