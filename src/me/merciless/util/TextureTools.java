@@ -23,4 +23,15 @@ public class TextureTools {
       System.err.println("tried to set anistropic on a non texture param");
     }
   }
+  
+  public static void setWrapMode(Material material, String textureName, Texture2D.WrapMode wrapMode){
+    MatParam param = material.getParam(textureName);
+    Object object = param.getValue();
+    if(object instanceof Texture2D){
+      Texture2D texture = (Texture2D)object;
+      texture.setWrap(wrapMode);
+    }else{
+      System.err.println("tried to set wrap mode on a non texture");
+    }
+  }
 }
