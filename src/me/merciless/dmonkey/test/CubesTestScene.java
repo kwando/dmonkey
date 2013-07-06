@@ -1,11 +1,11 @@
 package me.merciless.dmonkey.test;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.light.AmbientLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.FXAAFilter;
@@ -43,41 +43,73 @@ public class CubesTestScene extends SimpleApplication {
     pl.setRadius(5f);
     rootNode.addLight(pl);
 
+    for(int i = 0; i < 250; i++){
+      randomizeLight();
+    }
 
-    pl = new PointLight();
-    pl.setPosition(new Vector3f(5, 1, 0));
-    color = ColorRGBA.Yellow.clone();
-    pl.setColor(color);
-    pl.setRadius(5);
-    rootNode.addLight(pl);
 
     Material mat = assetManager.loadMaterial("DMonkey/TestMaterial.j3m");
     TextureTools.setAnistropic(mat, "DiffuseTex", 8);
     final Spatial model = assetManager.loadModel("Models/brokenCube.j3o");
     model.setMaterial(mat);
     Random random = new Random(7);
-    for (int i = 0; i < 40; i++) {
+    for (int i = 0; i < 210; i++) {
       Vector3f randomPos = new Vector3f(random.nextFloat() * 10, random.nextFloat() * 10, random.nextFloat() * 10);
       model.setLocalTranslation(randomPos.subtractLocal(5, 5, 5));
       Spatial geom = model.clone();
       geom.addControl(new RotationControl(new Vector3f(random.nextFloat(), random.nextFloat(), random.nextFloat())));
       rootNode.attachChild(geom);
     }
+    /*
+    Spatial geom = model.clone();
+    geom.scale(2);
+    
+    geom.setLocalTranslation(Vector3f.ZERO);
+    geom.setMaterial(assetManager.loadMaterial("Materials/Transparent.j3m"));
+    rootNode.attachChild(geom);
 
-    AmbientLight al = new AmbientLight();
+   /* AmbientLight al = new AmbientLight();
     al.setColor(ColorRGBA.Cyan.mult(.15f));
     rootNode.addLight(al);
+
+
+    DirectionalLight dl = new DirectionalLight();
+    al.setColor(ColorRGBA.Blue.mult(.3f));
+    dl.setDirection(Vector3f.UNIT_XYZ.mult(-1));
+    rootNode.addLight(dl);
+    * */
 
     stateManager.attach(new DebugControl(dsp));
     DeferredShadingUtils.scanNode(dsp, rootNode);
 
-     // Setup a small floating quad!
+
+  }
+
+  private void placeCube(float x, float y, float z) {
+  }
+
+  private void randomizeLight() {
+    PointLight pl = new PointLight();
+    pl.setPosition(new Vector3f(
+            FastMath.nextRandomFloat() * 10 - 5, FastMath.nextRandomFloat() * 10 - 5, FastMath.nextRandomFloat() * 10 - 5));
+    ColorRGBA color = ColorRGBA.randomColor();
+    pl.setColor(color);
+    pl.setRadius(2);
+    rootNode.addLight(pl);
+
+
+    if(true){
+      return;
+    }
+
+    // Setup a small floating quad!
     float size = .2f;
     Geometry geom = new Geometry("LightQuad", new Quad(size, size));
-    geom.setLocalTranslation(-size/2, 3-size/2, 0);
+    geom.setLocalTranslation(pl.getPosition());
+    geom.move(-size / 2, -size / 2, 0);
     Material lightMaterial = new Material(assetManager, "MatDefs/Unshaded.j3md");
     geom.setMaterial(lightMaterial);
-    lightMaterial.setColor("Color", ColorRGBA.Cyan.mult(1.2f));
+    lightMaterial.setColor("Color", color);
     lightMaterial.setTexture("LightMap", assetManager.loadTexture("Textures/particletexture.jpg"));
     lightMaterial.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Additive);
     lightMaterial.getAdditionalRenderState().setDepthWrite(false);
@@ -87,9 +119,6 @@ public class CubesTestScene extends SimpleApplication {
     node.addControl(billboarder);
     node.attachChild(geom);
     rootNode.attachChild(node);
-  }
-
-  private void placeCube(float x, float y, float z) {
   }
 
   private void setupPostProcessor() {
