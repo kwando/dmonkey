@@ -14,6 +14,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.FXAAFilter;
 import com.jme3.scene.BatchNode;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.system.AppSettings;
 import java.util.logging.Level;
@@ -33,9 +34,10 @@ public class Main extends SimpleApplication {
     Logger.getLogger("").setLevel(Level.WARNING);
     SimpleApplication app = new CubesTestScene();
     AppSettings settings = new AppSettings(true);
-    settings.setResolution(1280, 720);
+    settings.setResolution(1920, 1080);
     settings.setVSync(true);
-    //settings.setDepthBits(16);
+    settings.setFullscreen(false);
+    settings.setDepthBits(32);
 
     app.setSettings(settings);
     app.setShowSettings(false);
@@ -50,14 +52,14 @@ public class Main extends SimpleApplication {
     fpp.addFilter(new com.jme3.post.filters.BloomFilter(com.jme3.post.filters.BloomFilter.GlowMode.Scene));
     fpp.addFilter(new FXAAFilter());
     fpp.addFilter(new FXAAFilter());
-    //viewPort.addProcessor(fpp);
+    viewPort.addProcessor(fpp);
 
     flyCam.setMoveSpeed(10);
 
     Material mat = assetManager.loadMaterial("DMonkey/TestMaterial.j3m");
     Spatial geom = assetManager.loadModel("Models/brokenCube.j3o");
     geom.setMaterial(mat);
-    BatchNode cubes = new BatchNode();
+    Node cubes = new Node();
     
     int side = 10;
     float moveScale = 1.9f;
