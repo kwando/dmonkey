@@ -18,7 +18,7 @@ float fallof(float D, float r, float kl, float kq){
 }
 
 void main() {
-
+  float inputGamma = 2.2;
 	// Decode gbuffer
 	prepare();
 
@@ -38,7 +38,7 @@ void main() {
     gl_FragColor = color * fallof;
 
     // GammaCorrect textures
-    vec3 albedo = gamma(GBuffer.albedo, 1.0);
+    vec3 albedo = gamma(GBuffer.albedo, inputGamma);
     gl_FragColor *= vec4(albedo, 1);
 }
 

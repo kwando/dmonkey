@@ -13,6 +13,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.FXAAFilter;
+import com.jme3.renderer.Renderer;
 import com.jme3.scene.BatchNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -20,6 +21,8 @@ import com.jme3.system.AppSettings;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import me.merciless.dmonkey.test.CubesTestScene;
+import me.merciless.dmonkey.test.PhysicalLighting;
+import me.merciless.utils.LetterBox;
 
 /**
  * test
@@ -32,13 +35,12 @@ public class Main extends SimpleApplication {
 
   public static void main(String[] args) {
     Logger.getLogger("").setLevel(Level.WARNING);
-    SimpleApplication app = new CubesTestScene();
+    SimpleApplication app = new PhysicalLighting();
     AppSettings settings = new AppSettings(true);
-    settings.setResolution(1920, 1080);
+    settings.setResolution(1280, 720);
     settings.setVSync(true);
     settings.setFullscreen(false);
-    settings.setDepthBits(32);
-
+    settings.setDepthBits(24);
     app.setSettings(settings);
     app.setShowSettings(false);
     app.start();
@@ -49,8 +51,8 @@ public class Main extends SimpleApplication {
   public void simpleInitApp() {
     viewPort.addProcessor(dsp = new DeferredSceneProcessor(this));
     FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
-    fpp.addFilter(new com.jme3.post.filters.BloomFilter(com.jme3.post.filters.BloomFilter.GlowMode.Scene));
-    fpp.addFilter(new FXAAFilter());
+    //fpp.addFilter(new com.jme3.post.filters.BloomFilter(com.jme3.post.filters.BloomFilter.GlowMode.Scene));
+    //fpp.addFilter(new FXAAFilter());
     fpp.addFilter(new FXAAFilter());
     viewPort.addProcessor(fpp);
 

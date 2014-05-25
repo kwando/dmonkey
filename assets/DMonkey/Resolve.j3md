@@ -16,6 +16,7 @@ MaterialDef Resolve {
         WorldParameters {
           ViewMatrix
           ProjectionMatrixInverse
+          Resolution
         }
         RenderState{
           DepthTest false

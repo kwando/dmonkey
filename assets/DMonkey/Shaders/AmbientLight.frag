@@ -4,8 +4,8 @@ uniform vec4 m_Color;
 uniform float m_LightIntensity;
 
 uniform int m_DirectionalLights;
-uniform vec4 m_DirectionalColors[12];
-uniform vec3 m_Directions[12];
+uniform vec4 m_DirectionalColors[1];
+uniform vec3 m_Directions[1];
 
 #define EXTRACT_DEPTH(cc)((cc).b + (cc).g / 256.0 + (cc).r / (256.0 * 256.0) + (cc).a / (256.0 * 256.0 * 256.0))
 

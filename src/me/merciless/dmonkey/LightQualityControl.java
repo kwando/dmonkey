@@ -23,6 +23,7 @@ public class LightQualityControl extends AbstractControl {
   private Material material;
   private Camera cam;
   private boolean inside = true;
+  private boolean checked = false;
 
   public LightQualityControl(Material material, Camera cam) {
     this.material = material;
@@ -35,15 +36,17 @@ public class LightQualityControl extends AbstractControl {
     float d = cam.getLocation().distance(pos);
     float lightRadius = spatial.getLocalScale().x;
     material.setBoolean("specular", true);
-    if (inside && d > lightRadius + cam.getFrustumNear()) {
+    if (!checked || (inside && d > lightRadius + cam.getFrustumNear())) {
       inside = false;
+      checked = true;
       material.getAdditionalRenderState().setDepthTest(true);
       material.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Back);
       //material.setBoolean("specular", false);
       return;
     }
-    if (!inside && d < lightRadius + cam.getFrustumNear()) {
+    if (!checked || (!inside && d < lightRadius + cam.getFrustumNear())) {
       inside = true;
+      checked = true;
       //material.setBoolean("specular", true);
       material.getAdditionalRenderState().setDepthTest(false);
       material.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Front);

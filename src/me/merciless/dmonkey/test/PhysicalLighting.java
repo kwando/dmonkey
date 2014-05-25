@@ -2,6 +2,7 @@ package me.merciless.dmonkey.test;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.VideoRecorderAppState;
+import com.jme3.asset.DesktopAssetManager;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.PhysicsCollisionListener;
@@ -36,7 +37,6 @@ import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.BillboardControl;
 import com.jme3.scene.control.LightControl;
 import com.jme3.scene.shape.Quad;
-import com.jme3.scene.shape.Sphere;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
@@ -45,6 +45,7 @@ import me.merciless.dmonkey.DebugControl;
 import me.merciless.dmonkey.DeferredSceneProcessor;
 import me.merciless.dmonkey.DeferredShadingUtils;
 import me.merciless.util.TextureTools;
+import me.merciless.utils.LetterBox;
 
 /**
  *
@@ -55,10 +56,14 @@ public class PhysicalLighting extends SimpleApplication {
   private DeferredSceneProcessor dsp;
   private BatchNode cubesNode;
   private AtomicLong collisionCount = new AtomicLong();
-
+  private static final float INPUT_GAMMA = 2.2f;
+  private float BALL_INTENSITY = 1.375f;
+  private float BACKGROUND_INTENSITY = 1.5f;
+  public float LIGHT_SIZE = 1.5f;;
   @Override
   public void simpleInitApp() {
-    System.out.println(getRenderer().getCaps());
+    
+    new LetterBox(guiNode, this).apply();
     dsp = new DeferredSceneProcessor(this);
     viewPort.addProcessor(dsp);
     setupPostProcessor();
@@ -89,6 +94,8 @@ public class PhysicalLighting extends SimpleApplication {
 
     PointLight dl = new PointLight();
     ColorRGBA c = new ColorRGBA(0.19136488f, 0.5587857f, 0.60471356f, 1f);
+    gammaCorrect(c, INPUT_GAMMA);
+    c.multLocal(BACKGROUND_INTENSITY);
     System.out.println(c);
     dl.setColor(c);
     dl.setPosition(new Vector3f(0, -3, 0));
@@ -108,11 +115,12 @@ public class PhysicalLighting extends SimpleApplication {
     PointLight pl = new PointLight();
     pl.setPosition(new Vector3f(0, 3, 0));
     ColorRGBA color = ColorRGBA.Cyan.clone();
+    gammaCorrect(color, INPUT_GAMMA);
     pl.setColor(color);
     pl.setRadius(5f);
-    rootNode.addLight(pl);
+    //rootNode.addLight(pl);
 
-    for (int i = 0; i < 0; i++) {
+    for (int i = 0; i < 10; i++) {
       randomizeLight();
     }
 
@@ -123,7 +131,7 @@ public class PhysicalLighting extends SimpleApplication {
     model.setMaterial(mat);
     Random random = new Random(7);
     cubesNode = new BatchNode();
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 50; i++) {
       Vector3f randomPos = new Vector3f(random.nextFloat() * 10, random.nextFloat() * 10, random.nextFloat() * 10);
       model.setLocalTranslation(randomPos.subtractLocal(5, 5, 5));
       Spatial geom = model.clone();
@@ -168,8 +176,10 @@ public class PhysicalLighting extends SimpleApplication {
     pl.setPosition(new Vector3f(
             FastMath.nextRandomFloat() * 10 - 5, FastMath.nextRandomFloat() * 8 - 10, FastMath.nextRandomFloat() * 10 - 5));
     ColorRGBA color = ColorRGBA.randomColor();
+    gammaCorrect(color, INPUT_GAMMA);
+    color.multLocal(.5f);
     pl.setColor(color);
-    pl.setRadius(3);
+    pl.setRadius(8);
     rootNode.addLight(pl);
   }
 
@@ -177,12 +187,9 @@ public class PhysicalLighting extends SimpleApplication {
     FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
     
     BloomFilter bf = new BloomFilter(BloomFilter.GlowMode.Scene);
-    fpp.addFilter(bf);
-    bf.setExposurePower(10);
-    bf.setBloomIntensity(1.2f);
-    
-    fpp.addFilter(new FXAAFilter());
-    fpp.addFilter(new FXAAFilter());
+    //fpp.addFilter(bf);
+    //fpp.addFilter(new FXAAFilter());
+    //fpp.addFilter(new FXAAFilter());
     viewPort.addProcessor(fpp);
   }
 
@@ -224,8 +231,9 @@ public class PhysicalLighting extends SimpleApplication {
       geom = new Geometry("projectile", box);
 
       PointLight pointLight = new PointLight();
-      pointLight.setColor(ColorRGBA.randomColor());
-      pointLight.setRadius(1.2f);
+      
+      //pointLight.setColor(ColorRGBA.randomColor().multLocal(0.1f));
+      pointLight.setRadius(LIGHT_SIZE);
 
       LightControl lc = new LightControl(pointLight);
       geom.addControl(lc);
@@ -283,11 +291,18 @@ public class PhysicalLighting extends SimpleApplication {
     control.setFriction(1f);
     control.setRestitution(0.56f);
     control.setAngularDamping(.67f);
-    ColorRGBA rgba = ColorRGBA.randomColor();
+    ColorRGBA rgba = gammaCorrect(ColorRGBA.randomColor(), INPUT_GAMMA).multLocal(BALL_INTENSITY);
     geom.getControl(LightControl.class).getLight().setColor(rgba);
     geom.getMaterial().setColor("Color", rgba);
 
     rootNode.attachChild(geom);
+  }
+  
+  private ColorRGBA gammaCorrect(ColorRGBA rgba, float gamma){
+    rgba.r = (float) Math.pow(rgba.r, gamma);
+    rgba.g = (float) Math.pow(rgba.g, gamma);
+    rgba.b = (float) Math.pow(rgba.b, gamma);
+    return rgba;
   }
 
   private void setupControls() {

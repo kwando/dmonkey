@@ -181,8 +181,8 @@ public class DeferredSceneProcessor implements SceneProcessor {
     rm.renderGeometryList(renderedLightGeometries);
             
 
-    ambient.updateGeometricState();
-    ambient.render(rm, vp);
+    //ambient.updateGeometricState();
+    //ambient.render(rm, vp);
 
     if (debugLights) {
       lightNode.updateGeometricState();

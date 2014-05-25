@@ -28,7 +28,7 @@ vec4 ComputeLighting(Light light) {
 		    vec3 vsCameraDir = normalize(GBuffer.position);
 		    vec3 reflection = reflect(light.direction, GBuffer.normal);
 		    float specular = clamp(dot(normalize(vsCameraDir), normalize(reflection)), 0.0, 1.0);
-		    specular = pow(specular, 120.0);
+		    specular = pow(specular, 40.0);
 
 		    if (specular > 0.0) {
             	SpecularColor = vec4(light.color.rgb, 1.0) * GBuffer.specular * specular;

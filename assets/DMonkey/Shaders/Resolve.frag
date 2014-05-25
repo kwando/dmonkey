@@ -20,6 +20,7 @@ void main() {
     vec4 LBuffer = texture2D(m_LightBuffer, TexCoord);
     gl_FragColor.rgb = LBuffer.rgb;
     //gl_FragColor.rgb = gl_FragColor.rgb / (1.0 + gl_FragColor.rgb);
+    
+    gl_FragColor.rgb = FilmicMain(gl_FragColor.rgb);
     //gl_FragColor.rgb = gamma(gl_FragColor.rgb, 1.0/2.2);
-    //gl_FragColor.rgb = FilmicMain(gl_FragColor.rgb);
 }
