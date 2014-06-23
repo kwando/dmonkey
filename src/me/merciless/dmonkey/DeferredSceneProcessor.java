@@ -137,7 +137,7 @@ public class DeferredSceneProcessor implements SceneProcessor {
   public void reshape(ViewPort vp, int w, int h) {
     gbuffer = new GBuffer(w, h);
     lightBuffer = new FrameBuffer(w, h, 1);
-    lightTexture = new Texture2D(w, h, Image.Format.RGBA8);
+    lightTexture = new Texture2D(w, h, Image.Format.RGBA16F);
     lightBuffer.setColorTexture(lightTexture);
     lightBuffer.setDepthTexture(gbuffer.Zbuffer);
   }
@@ -181,8 +181,8 @@ public class DeferredSceneProcessor implements SceneProcessor {
     rm.renderGeometryList(renderedLightGeometries);
             
 
-    //ambient.updateGeometricState();
-    //ambient.render(rm, vp);
+    ambient.updateGeometricState();
+    ambient.render(rm, vp);
 
     if (debugLights) {
       lightNode.updateGeometricState();

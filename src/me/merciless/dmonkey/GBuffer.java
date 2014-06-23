@@ -25,6 +25,7 @@ public class GBuffer {
   }
 
   public GBuffer(int width, int height, Image.Format format) {
+    Image.Format.valueOf("RGBA8");
     this.fbo = new FrameBuffer(width, height, 1);
 
     normals = new Texture2D(width, height, format);

@@ -1,0 +1,12 @@
+Material CubeMaterial : MatDefs/Lighting_1.j3md {
+     MaterialParameters {
+        DiffuseMap : Flip Textures/Cartoon/SoilCracked0146_2_S.jpg
+        NormalMap : Flip Textures/Cartoon/SoilCracked0146_2_S_NRM.png
+        SpecularMap : Textures/Cartoon/SoilCracked0146_2_S_SPEC.png
+        SteepParallax : false
+        UseVertexColor : false
+        Shininess : 80.0
+     }
+    AdditionalRenderState {
+    }
+}

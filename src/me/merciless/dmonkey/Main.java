@@ -22,6 +22,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import me.merciless.dmonkey.test.CubesTestScene;
 import me.merciless.dmonkey.test.PhysicalLighting;
+import me.merciless.dmonkey.test.ShadingTest;
 import me.merciless.utils.LetterBox;
 
 /**

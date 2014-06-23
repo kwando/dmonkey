@@ -14,31 +14,37 @@ struct Light {
 	vec3 direction;
 };
 
+const float SHINY = 80.0;
+const float R0 = 0.02037;
+float fastFresnel(vec3 ViewDir, vec3 Normal){
+  return R0 + (1.0 - R0)*pow((1.0 - dot(ViewDir, Normal)),5.0);
+}
 vec4 ComputeLighting(Light light) {
 
-    float lambert = clamp(dot(GBuffer.normal, light.direction), 0.0, 1.0);
+    float lambert = max(dot(GBuffer.normal, light.direction), 0.0);
     
     vec4 DiffuseColor  = vec4(0, 0, 0, 0);
     vec4 SpecularColor = vec4(0, 0, 0, 0);
+    float Roughness = 1.0;
+    float specPower = pow(2.0, (10.0 * (Roughness / 255.0) + 1.0));
 
-    if (lambert > 0.0) {
+    
     	DiffuseColor = light.color * lambert;
 
 	    #ifdef SPECULAR
 		    vec3 vsCameraDir = normalize(GBuffer.position);
 		    vec3 reflection = reflect(light.direction, GBuffer.normal);
-		    float specular = clamp(dot(normalize(vsCameraDir), normalize(reflection)), 0.0, 1.0);
-		    specular = pow(specular, 40.0);
-
+		    float specular = max(dot(normalize(vsCameraDir), normalize(reflection)), 0.0);
+		    specular = pow(specular, specPower);
 		    if (specular > 0.0) {
-            	SpecularColor = vec4(light.color.rgb, 1.0) * GBuffer.specular * specular;
+            	SpecularColor = vec4(1.0) * GBuffer.specular * specular;
         	}
 	    #else
 	    	float specular = 0.0;
 	    #endif
-	}
+	
 
-    return DiffuseColor + SpecularColor;
+    return DiffuseColor + SpecularColor*0.0;
 }
 
 // Other uses.. later on

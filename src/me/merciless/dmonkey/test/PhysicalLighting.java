@@ -2,7 +2,6 @@ package me.merciless.dmonkey.test;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.VideoRecorderAppState;
-import com.jme3.asset.DesktopAssetManager;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.PhysicsCollisionListener;
@@ -12,6 +11,7 @@ import com.jme3.bullet.collision.shapes.PlaneCollisionShape;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.objects.PhysicsRigidBody;
+import com.jme3.font.BitmapText;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.MouseButtonTrigger;
@@ -23,7 +23,6 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Plane;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.filters.BloomFilter;
 import com.jme3.post.filters.FXAAFilter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -45,6 +44,7 @@ import me.merciless.dmonkey.DebugControl;
 import me.merciless.dmonkey.DeferredSceneProcessor;
 import me.merciless.dmonkey.DeferredShadingUtils;
 import me.merciless.util.TextureTools;
+import me.merciless.utils.ColorTools;
 import me.merciless.utils.LetterBox;
 
 /**
@@ -55,14 +55,12 @@ public class PhysicalLighting extends SimpleApplication {
 
   private DeferredSceneProcessor dsp;
   private BatchNode cubesNode;
-  private AtomicLong collisionCount = new AtomicLong();
   private static final float INPUT_GAMMA = 2.2f;
   private float BALL_INTENSITY = 1.375f;
   private float BACKGROUND_INTENSITY = 1.5f;
   public float LIGHT_SIZE = 1.5f;;
   @Override
   public void simpleInitApp() {
-    
     new LetterBox(guiNode, this).apply();
     dsp = new DeferredSceneProcessor(this);
     viewPort.addProcessor(dsp);
@@ -70,19 +68,10 @@ public class PhysicalLighting extends SimpleApplication {
     BulletAppState bullet = new BulletAppState();
     bullet.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
 
-    VideoRecorderAppState recorder = new VideoRecorderAppState();
-    //stateManager.attach(recorder);
 
     stateManager.attach(bullet);
-    bullet.getPhysicsSpace().addCollisionListener(new PhysicsCollisionListener() {
-      @Override
-      public void collision(PhysicsCollisionEvent event) {
-        long collisions = collisionCount.incrementAndGet();
-        if (collisions % 1000 == 0) {
-          System.out.printf("%dK collisions\n", collisions / 1000);
-        }
-      }
-    });
+    stateManager.attach(new PhysicsStatistics(guiNode));
+    
 
     //bullet.setDebugEnabled(true);
 
@@ -94,7 +83,7 @@ public class PhysicalLighting extends SimpleApplication {
 
     PointLight dl = new PointLight();
     ColorRGBA c = new ColorRGBA(0.19136488f, 0.5587857f, 0.60471356f, 1f);
-    gammaCorrect(c, INPUT_GAMMA);
+    ColorTools.gamma(INPUT_GAMMA, c);
     c.multLocal(BACKGROUND_INTENSITY);
     System.out.println(c);
     dl.setColor(c);
@@ -115,7 +104,7 @@ public class PhysicalLighting extends SimpleApplication {
     PointLight pl = new PointLight();
     pl.setPosition(new Vector3f(0, 3, 0));
     ColorRGBA color = ColorRGBA.Cyan.clone();
-    gammaCorrect(color, INPUT_GAMMA);
+    ColorTools.gamma(INPUT_GAMMA, color);
     pl.setColor(color);
     pl.setRadius(5f);
     //rootNode.addLight(pl);
@@ -131,7 +120,7 @@ public class PhysicalLighting extends SimpleApplication {
     model.setMaterial(mat);
     Random random = new Random(7);
     cubesNode = new BatchNode();
-    for (int i = 0; i < 50; i++) {
+    for (int i = 0; i < 120; i++) {
       Vector3f randomPos = new Vector3f(random.nextFloat() * 10, random.nextFloat() * 10, random.nextFloat() * 10);
       model.setLocalTranslation(randomPos.subtractLocal(5, 5, 5));
       Spatial geom = model.clone();
@@ -140,31 +129,14 @@ public class PhysicalLighting extends SimpleApplication {
       BoxCollisionShape box = new BoxCollisionShape(new Vector3f(.5f, .5f, .5f));
       RigidBodyControl control = new RigidBodyControl(box, 1);
       geom.addControl(control);
-      control.setMass(120);
+      control.setMass(120f);
+      control.setKinematic(true);
       control.setLinearSleepingThreshold(10f);
       control.setLinearDamping(0.4f);
       bullet.getPhysicsSpace().add(control);
     }
     rootNode.attachChild(cubesNode);
-    /*
-     Spatial geom = model.clone();
-     geom.scale(2);
     
-     geom.setLocalTranslation(Vector3f.ZERO);
-     geom.setMaterial(assetManager.loadMaterial("Materials/Transparent.j3m"));
-     rootNode.attachChild(geom);
-
-     /* AmbientLight al = new AmbientLight();
-     al.setColor(ColorRGBA.Cyan.mult(.15f));
-     rootNode.addLight(al);
-
-
-     DirectionalLight dl = new DirectionalLight();
-     al.setColor(ColorRGBA.Blue.mult(.3f));
-     dl.setDirection(Vector3f.UNIT_XYZ.mult(-1));
-     rootNode.addLight(dl);
-     * */
-
     stateManager.attach(new DebugControl(dsp));
     DeferredShadingUtils.scanNode(dsp, rootNode);
 
@@ -176,7 +148,7 @@ public class PhysicalLighting extends SimpleApplication {
     pl.setPosition(new Vector3f(
             FastMath.nextRandomFloat() * 10 - 5, FastMath.nextRandomFloat() * 8 - 10, FastMath.nextRandomFloat() * 10 - 5));
     ColorRGBA color = ColorRGBA.randomColor();
-    gammaCorrect(color, INPUT_GAMMA);
+    ColorTools.gamma(INPUT_GAMMA, color);
     color.multLocal(.5f);
     pl.setColor(color);
     pl.setRadius(8);
@@ -185,11 +157,7 @@ public class PhysicalLighting extends SimpleApplication {
 
   private void setupPostProcessor() {
     FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
-    
-    BloomFilter bf = new BloomFilter(BloomFilter.GlowMode.Scene);
-    //fpp.addFilter(bf);
-    //fpp.addFilter(new FXAAFilter());
-    //fpp.addFilter(new FXAAFilter());
+    fpp.addFilter(new FXAAFilter());
     viewPort.addProcessor(fpp);
   }
 
@@ -232,7 +200,6 @@ public class PhysicalLighting extends SimpleApplication {
 
       PointLight pointLight = new PointLight();
       
-      //pointLight.setColor(ColorRGBA.randomColor().multLocal(0.1f));
       pointLight.setRadius(LIGHT_SIZE);
 
       LightControl lc = new LightControl(pointLight);
@@ -282,7 +249,7 @@ public class PhysicalLighting extends SimpleApplication {
       protected void controlRender(RenderManager rm, ViewPort vp) {
       }
     });
-    float weight = 0.1f;
+    float weight = 0.01f;
     RigidBodyControl control = new RigidBodyControl(shape, weight);
     geom.addControl(control);
     stateManager.getState(BulletAppState.class).getPhysicsSpace().add(control);
@@ -291,18 +258,11 @@ public class PhysicalLighting extends SimpleApplication {
     control.setFriction(1f);
     control.setRestitution(0.56f);
     control.setAngularDamping(.67f);
-    ColorRGBA rgba = gammaCorrect(ColorRGBA.randomColor(), INPUT_GAMMA).multLocal(BALL_INTENSITY);
+    ColorRGBA rgba = ColorTools.gamma(INPUT_GAMMA, ColorRGBA.randomColor()).multLocal(BALL_INTENSITY);
     geom.getControl(LightControl.class).getLight().setColor(rgba);
     geom.getMaterial().setColor("Color", rgba);
 
     rootNode.attachChild(geom);
-  }
-  
-  private ColorRGBA gammaCorrect(ColorRGBA rgba, float gamma){
-    rgba.r = (float) Math.pow(rgba.r, gamma);
-    rgba.g = (float) Math.pow(rgba.g, gamma);
-    rgba.b = (float) Math.pow(rgba.b, gamma);
-    return rgba;
   }
 
   private void setupControls() {

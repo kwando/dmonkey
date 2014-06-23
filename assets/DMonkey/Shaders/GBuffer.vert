@@ -24,7 +24,23 @@ void main() {
     Position = (g_ViewMatrix * pos).xyz;
     TexCoord = inTexCoord;
     #ifdef NORMAL_MAP
-    Tangent = inTangent.xyz;
-    Binormal = cross(Tangent, Normal);
+    Tangent = normalize(g_NormalMatrix*inTangent.xyz);
+    Binormal = cross(Normal, Tangent) * -inTangent.w;
     #endif
 }
+/*
+[2014-06-18 09:16:47] Vlad Ravenholm:     #ifdef HAS_NORMAL
+     vec3 wvTangent = normalize(g_NormalMatrix * inTangent.xyz);
+     vec3 wvBinormal = cross(wvNormal, wvTangent);
+ 
+  mat3 tbnMat = mat3(wvTangent, wvBinormal * -inTangent.w, wvNormal);
+  
+     TBN = tbnMat;
+    #else
+     Normal = wvNormal;
+    #endif
+[2014-06-18 09:17:17] Vlad Ravenholm: frag:
+[2014-06-18 09:17:23] Vlad Ravenholm:   vec3 map = texture2D(m_NormalMap, TexCoord).xyz  * 2.0 - 1.0;
+  vec3 normal = TBN * map;
+[2014-06-18 09:17:31] Vlad Ravenholm: gl_FragData[1] = vec4(normalize(normal) * 0.5+0.5, 1.0);
+*/
