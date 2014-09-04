@@ -1,12 +1,12 @@
 Material My Material : DMonkey/GBuffer.j3md {
      MaterialParameters {
-        DiffuseTex : Textures/rock/Cliffs0193_45_S_diffuse.png
+        DiffuseTex : DMonkey/Textures/example2_diffuse_noshade.png
         SpecularAmount : 1.0
         DiffuseColor : 1.0 1.0 1.0 1.0
-        NormalTex : Textures/rock/Cliffs0193_45_S_normal.png
+        NormalTex : DMonkey/Textures/example2_normaldeep.jpg
      }
     AdditionalRenderState {
       Wireframe Off
-      FaceCull Back
+      FaceCull Off
     }
 }

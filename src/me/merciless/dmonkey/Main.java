@@ -13,17 +13,13 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.FXAAFilter;
-import com.jme3.renderer.Renderer;
-import com.jme3.scene.BatchNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.system.AppSettings;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import me.merciless.dmonkey.test.CubesTestScene;
 import me.merciless.dmonkey.test.PhysicalLighting;
-import me.merciless.dmonkey.test.ShadingTest;
-import me.merciless.utils.LetterBox;
+import me.merciless.dmonkey3.TestCase;
 
 /**
  * test
@@ -36,7 +32,8 @@ public class Main extends SimpleApplication {
 
   public static void main(String[] args) {
     Logger.getLogger("").setLevel(Level.WARNING);
-    SimpleApplication app = new PhysicalLighting();
+    SimpleApplication app = new TestCase();
+    app = new PhysicalLighting();
     AppSettings settings = new AppSettings(true);
     settings.setResolution(1280, 720);
     settings.setVSync(true);

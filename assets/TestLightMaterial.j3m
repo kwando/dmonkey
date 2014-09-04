@@ -1,0 +1,18 @@
+Material SimpleLighted : Common/MatDefs/Light/Lighting.j3md {
+     MaterialParameters {
+        UseMaterialColors : false
+        Diffuse : 0.9019608 0.9019608 0.6784314 1.0
+        Ambient : 0.4 0.4 0.4 1.0
+        HighQuality : false
+        VTangent : false
+        UseVertexColor : false
+        PackedNormalParallax : false
+        LowQuality : false
+        WardIso : false
+        Minnaert : false
+        DiffuseMap : Textures/SoilBeach0087_1_S.jpg
+     }
+    AdditionalRenderState {
+        Blend Additive
+    }
+}

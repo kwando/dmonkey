@@ -1,17 +1,14 @@
 package me.merciless.dmonkey.test;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.app.state.VideoRecorderAppState;
 import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.collision.PhysicsCollisionEvent;
-import com.jme3.bullet.collision.PhysicsCollisionListener;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.collision.shapes.PlaneCollisionShape;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.objects.PhysicsRigidBody;
-import com.jme3.font.BitmapText;
+import com.jme3.font.BitmapFont;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.MouseButtonTrigger;
@@ -39,7 +36,6 @@ import com.jme3.scene.shape.Quad;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicLong;
 import me.merciless.dmonkey.DebugControl;
 import me.merciless.dmonkey.DeferredSceneProcessor;
 import me.merciless.dmonkey.DeferredShadingUtils;
@@ -57,10 +53,14 @@ public class PhysicalLighting extends SimpleApplication {
   private BatchNode cubesNode;
   private static final float INPUT_GAMMA = 2.2f;
   private float BALL_INTENSITY = 1.375f;
-  private float BACKGROUND_INTENSITY = 1.5f;
-  public float LIGHT_SIZE = 1.5f;;
+  private float BACKGROUND_INTENSITY = 1.25f;
+  public float LIGHT_SIZE = 1.25f;
+
   @Override
   public void simpleInitApp() {
+    assetManager.registerLocator("/Users/kwando/Desktop", com.jme3.asset.plugins.FileLocator.class);
+    
+
     new LetterBox(guiNode, this).apply();
     dsp = new DeferredSceneProcessor(this);
     viewPort.addProcessor(dsp);
@@ -71,7 +71,7 @@ public class PhysicalLighting extends SimpleApplication {
 
     stateManager.attach(bullet);
     stateManager.attach(new PhysicsStatistics(guiNode));
-    
+
 
     //bullet.setDebugEnabled(true);
 
@@ -136,11 +136,16 @@ public class PhysicalLighting extends SimpleApplication {
       bullet.getPhysicsSpace().add(control);
     }
     rootNode.attachChild(cubesNode);
-    
+
     stateManager.attach(new DebugControl(dsp));
     DeferredShadingUtils.scanNode(dsp, rootNode);
 
     setupControls();
+  }
+
+  @Override
+  protected BitmapFont loadGuiFont() {
+    return assetManager.loadFont("Interface/Fonts/Futura.fnt");
   }
 
   private void randomizeLight() {
@@ -158,7 +163,7 @@ public class PhysicalLighting extends SimpleApplication {
   private void setupPostProcessor() {
     FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
     fpp.addFilter(new FXAAFilter());
-    viewPort.addProcessor(fpp);
+    //viewPort.addProcessor(fpp);
   }
 
   @Override
@@ -176,7 +181,7 @@ public class PhysicalLighting extends SimpleApplication {
   private Queue<Geometry> freeBalls = new LinkedList<Geometry>();
   private float lastFire = 0;
   private float ballsPerSec = 300;
-  private int maxBalls = 500;
+  private int maxBalls = 1000;
   private int activeBalls = 0;
   private int ballsPerFrame = 10;
   private float maxLife = 3;
@@ -194,12 +199,12 @@ public class PhysicalLighting extends SimpleApplication {
       geom = freeBalls.poll();
     } else {
       float size = 0.15f;
-      
+
       Mesh box = new Quad(size, size);
       geom = new Geometry("projectile", box);
 
       PointLight pointLight = new PointLight();
-      
+
       pointLight.setRadius(LIGHT_SIZE);
 
       LightControl lc = new LightControl(pointLight);
@@ -249,12 +254,12 @@ public class PhysicalLighting extends SimpleApplication {
       protected void controlRender(RenderManager rm, ViewPort vp) {
       }
     });
-    float weight = 0.01f;
+    float weight = 0.0001f;
     RigidBodyControl control = new RigidBodyControl(shape, weight);
     geom.addControl(control);
     stateManager.getState(BulletAppState.class).getPhysicsSpace().add(control);
     control.setPhysicsLocation(cam.getLocation().add(cam.getDirection().mult(2)));
-    control.setLinearVelocity(cam.getDirection().mult(20));
+    control.setLinearVelocity(cam.getDirection().mult(25));
     control.setFriction(1f);
     control.setRestitution(0.56f);
     control.setAngularDamping(.67f);
