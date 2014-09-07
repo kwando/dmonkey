@@ -22,8 +22,8 @@ void main() {
     vec3 tsNormal = normalize(texture2D(m_NormalTex, uv1).xyz * 2.0 - 1.0);
 	
     normal = normalize(Tangent * tsNormal.x + Binormal * tsNormal.y + Normal * tsNormal.z);
-    vec3 vsNormal = (g_ViewMatrix * vec4(normal, 0.0)).xyz;
-		mat3 TBN = mat3(normalize(Tangent), normalize(Binormal), normalize(Normal));
+    //vec3 vsNormal = (g_ViewMatrix * vec4(normal, 0.0)).xyz;
+		//mat3 TBN = mat3(normalize(Tangent), normalize(Binormal), normalize(Normal));
     #endif
 	
     float specular = texture2D(m_SpecularTex, uv1).r;

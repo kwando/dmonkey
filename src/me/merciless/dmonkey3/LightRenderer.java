@@ -1,9 +1,12 @@
 package me.merciless.dmonkey3;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
+import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
@@ -11,6 +14,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
 import com.jme3.texture.FrameBuffer;
+import me.merciless.utils.color.CSSColor;
 
 /**
  *
@@ -23,13 +27,21 @@ public class LightRenderer implements GBufferListener, SceneProcessor {
   private RenderManager renderManager;
   private Material material;
   private boolean gbufferChanged = false;
+  private Camera camera;
+  
+  private Vector3f vsLightDir = new Vector3f();
+  
+  private DirectionalLight dl = new DirectionalLight();
 
   private LightRenderer(AssetManager assets) {
     this.fullscreenQuad = new Geometry("LightRenderQuad", new Quad(1, 1));
     material = new Material(assets, "DMonkey/AmbientLight.j3md");
-    material.setColor("Color", ColorRGBA.Blue);
+    material.setColor("Color", dl.getColor());
+    dl.setColor(new ColorRGBA(CSSColor.LightSkyBlue).interpolateLocal(ColorRGBA.White, 0.5f));
     fullscreenQuad.setMaterial(material);
     fullscreenQuad.setCullHint(Spatial.CullHint.Never);
+    
+    dl.setDirection(Vector3f.UNIT_XYZ);
   }
 
   public static LightRenderer initialize(AssetManager assets) {
@@ -58,6 +70,7 @@ public class LightRenderer implements GBufferListener, SceneProcessor {
   @Override
   public void initialize(RenderManager rm, ViewPort vp) {
     renderManager = rm;
+    camera = vp.getCamera();
   }
 
   @Override
@@ -80,7 +93,8 @@ public class LightRenderer implements GBufferListener, SceneProcessor {
   @Override
   public void postFrame(FrameBuffer out) {
     updateMaterial();
-    
+    vsLightDir.set(camera.getViewMatrix().mult(dl.getDirection().normalizeLocal()).normalize());
+    material.setVector3("LightDir", dl.getDirection());
     renderManager.getRenderer().setFrameBuffer(null);
     renderManager.getRenderer().clearBuffers(true, true, true);
     renderManager.renderGeometry(fullscreenQuad);
