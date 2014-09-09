@@ -5,6 +5,7 @@ import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.math.ColorRGBA;
 import com.jme3.post.FilterPostProcessor;
+import com.jme3.post.filters.FXAAFilter;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;

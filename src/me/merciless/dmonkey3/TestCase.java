@@ -11,6 +11,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
@@ -66,6 +67,11 @@ public class TestCase extends SimpleApplication {
     ((Texture)(groundPlane.getMaterial().getTextureParam("NormalTex").getValue())).setWrap(Texture.WrapMode.Repeat);
 
     deferred.getRootNode().attachChild(groundPlane);
+    
+    Spatial spat = assetManager.loadModel("Models/Tracy/Tracy.j3o");
+    //spat.setMaterial(cylinder.getMaterial());
+    spat.move(-2, -2, 1);
+    deferred.getRootNode().attachChild(spat);
   }
 
   public static void main(String[] arg) {

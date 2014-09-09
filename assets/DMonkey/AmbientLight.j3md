@@ -5,9 +5,7 @@ MaterialDef AmbientLight {
         Texture2D DepthBuffer
         Texture2D NormalBuffer
         Texture2D DiffuseBuffer
-        Vector3   LightDir
-		Vector4Array DirectionalColors
-		Vector3Array Directions
+        Vector3   ViewLightDir
 
         Float LightIntensity
         Int DirectionalLights

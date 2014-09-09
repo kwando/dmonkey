@@ -4,7 +4,9 @@ import com.jme3.asset.AssetManager;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
@@ -94,7 +96,13 @@ public class LightRenderer implements GBufferListener, SceneProcessor {
   public void postFrame(FrameBuffer out) {
     updateMaterial();
     vsLightDir.set(camera.getViewMatrix().mult(dl.getDirection().normalizeLocal()).normalize());
-    material.setVector3("LightDir", dl.getDirection());
+    
+    Vector3f vec3 = dl.getDirection();
+    Vector4f vec4 = new Vector4f(vec3.x, vec3.y, vec3.z, 0);
+    camera.getViewMatrix().mult(vec4, vec4);
+    
+    vec3 = new Vector3f(vec4.x, vec4.y, vec4.z);
+    material.setVector3("ViewLightDir", vec3);
     renderManager.getRenderer().setFrameBuffer(null);
     renderManager.getRenderer().clearBuffers(true, true, true);
     renderManager.renderGeometry(fullscreenQuad);
