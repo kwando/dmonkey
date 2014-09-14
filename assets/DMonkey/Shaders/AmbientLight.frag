@@ -1,9 +1,12 @@
 #define SPECULAR
 #define GAMMA_CORRECT
+
+uniform float g_Time;
 #import "DMonkey/Shaders/DM_Light.glsllib"
 uniform vec4 m_Color;
 uniform float m_LightIntensity;
 uniform vec3 m_ViewLightDir;
+
 
 const vec3 lightDirection = vec3(0.1, 0.3, 0.0);
 const float GAMMA = 2.2;
@@ -26,12 +29,13 @@ void main() {
     Light light = Light(vec4(gamma(m_Color.rgb, GAMMA), 0.0), vec3(0.0), m_ViewLightDir);
     vec4 color = ComputeLighting(light);
 
-    color += vec4(0.05, 0.05, 0.1, 0.0);
+    //color += vec4(0.05, 0.05, 0.1, 0.0);
 
-    gl_FragColor.rgb = albedo * color.rgb * 1.5;
+    gl_FragColor.rgb = albedo * color.rgb * 10.0;
 
-    //gl_FragColor.rgb = FilmicMain(gl_FragColor.rgb);
+    
     #ifdef GAMMA_CORRECT
+    //gl_FragColor.rgb = FilmicMain(gl_FragColor.rgb);
     gl_FragColor.rgb = gamma(gl_FragColor.rgb, 1.0 / GAMMA);
     #endif
 }

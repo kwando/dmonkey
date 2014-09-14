@@ -8,6 +8,7 @@ import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -29,6 +30,7 @@ public class TestCase extends SimpleApplication {
   @Override
   public void simpleInitApp() {
     stateManager.attach(deferred = new DeferredRenderState());
+    flyCam.setMoveSpeed(10);
 
     material = assetManager.loadMaterial("TestLightMaterial.j3m");
     Geometry geom = new Geometry("BoxNode", new Box(1, 1, 1));

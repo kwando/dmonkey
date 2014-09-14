@@ -30,19 +30,19 @@ public class LightRenderer implements GBufferListener, SceneProcessor {
   private Material material;
   private boolean gbufferChanged = false;
   private Camera camera;
-  
   private Vector3f vsLightDir = new Vector3f();
-  
   private DirectionalLight dl = new DirectionalLight();
 
   private LightRenderer(AssetManager assets) {
     this.fullscreenQuad = new Geometry("LightRenderQuad", new Quad(1, 1));
     material = new Material(assets, "DMonkey/AmbientLight.j3md");
     material.setColor("Color", dl.getColor());
-    dl.setColor(new ColorRGBA(CSSColor.LightSkyBlue).interpolateLocal(ColorRGBA.White, 0.5f));
+    
+
+    dl.setColor(ColorRGBA.White.clone());
     fullscreenQuad.setMaterial(material);
     fullscreenQuad.setCullHint(Spatial.CullHint.Never);
-    
+
     dl.setDirection(Vector3f.UNIT_XYZ);
   }
 
@@ -96,11 +96,11 @@ public class LightRenderer implements GBufferListener, SceneProcessor {
   public void postFrame(FrameBuffer out) {
     updateMaterial();
     vsLightDir.set(camera.getViewMatrix().mult(dl.getDirection().normalizeLocal()).normalize());
-    
+
     Vector3f vec3 = dl.getDirection();
     Vector4f vec4 = new Vector4f(vec3.x, vec3.y, vec3.z, 0);
     camera.getViewMatrix().mult(vec4, vec4);
-    
+
     vec3 = new Vector3f(vec4.x, vec4.y, vec4.z);
     material.setVector3("ViewLightDir", vec3);
     renderManager.getRenderer().setFrameBuffer(null);
